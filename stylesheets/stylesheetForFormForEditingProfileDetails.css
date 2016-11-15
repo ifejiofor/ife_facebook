@@ -1,0 +1,114 @@
+/*
+   styles common to the forms for editing profile details
+*/
+div.containerForEditForm {
+   width: 76.9230%;   /* 1000px/1300px */
+   margin: auto;
+   background-color: white;
+   border: 1px solid #CCCCFF;
+   padding: 1.538461%;   /* 20px/1300px */
+}
+
+div.containerForEditForm  h2, div.containerForEditForm  h3 {
+   color: #003399;
+}
+
+label.fieldInEditForm {
+   display: block;
+   padding: 1.5625%; /* 15px/960px; 960px is the width of the containing 'form' element */
+   font-size: 0.9em;
+}
+
+div.containerForErrorMessageInEditForm {
+   clear: both;
+}
+
+span.errorMessageInEditForm {
+   color: red;
+   font-family: "Courier New", "Times New Roman", serif;
+   font-size: 0.9em;
+}
+
+input.buttonInEditForm {
+   background-color: #003399;
+   color: white;
+   border-color: #003399;
+   font-weight: bolder;
+}
+
+input.buttonInEditForm:hover {
+   background-color: #CCC;
+   color: #003399;
+}
+
+textarea.textAreaInEditForm {
+   width: 50%;
+   height: 100px;
+}
+
+@media all and (max-width: 700px) {
+   textarea.textAreaInEditForm {
+      width: 90%;
+   }
+}
+
+
+/*
+   Styles specific to the editLnaguagesSpokenDetailsRedirected.php
+*/
+section.languageEntry {
+   float: left;
+   height: 150px;
+   width: 43%; /* 430px/1000px; where 1000px is the 'standard width' of div.containerForEditForm */
+   margin: 1.4%; /* 14px/1000px */
+   padding: 1%; /* 10px/1000px */
+   border: 1px solid #CCCCFF;
+}
+
+p.languageNumber, div.languageName {
+   float: left;
+}
+
+p.languageNumber {
+   margin-right: 2%; /* 20px/1000px */
+   font-family: "Copperplate Gothic Bold", "Berlin Sans FB Demi", Consolas, sans-serif;
+   color: #003399;
+}
+
+div.languageName {
+   width: 69.76744186%; /* 300px/430px; where 430px is the 'standard width' of the containing section.languageEntry */
+}
+
+div.languageName  input.buttonInEditForm {
+   margin-top: 5px;
+}
+
+form.containerForExtraButtonsInEditForm {
+   clear: both;
+}
+
+input.extraButtonInEditForm {
+   font-size: 17px;
+   color: white;
+   background-color: green;
+   border-color: black;
+   padding: 5px;
+   margin-left: 14px;
+   margin-top: 5px;
+}
+
+input.extraButtonInEditForm:hover {
+   background-color: #00CC00;
+}
+
+@media all and (max-width: 1100px) {
+   section.languageEntry {
+      width: 90%;
+   }
+}
+
+@media all and (max-width: 560px) {
+   section.languageEntry {
+      height: 200px;
+   }
+}

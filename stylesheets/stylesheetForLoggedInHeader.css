@@ -1,0 +1,121 @@
+/*
+   Styles for the elements in the header when the user is logged in
+*/
+
+h1.loggedInLogo, form.searchBar, nav.importantLinks {
+   float: left;
+}
+
+header.loggedInHeader {
+   padding-left: 5.38461%; /* 70px/1300px; where 1300px is the 'standard width' for the 'body' tag */
+   background-color: #003399;
+   width: 100%;
+   position: fixed;
+   top: 0px;
+   left: 0px;
+   padding-top: 10px;
+   padding-bottom: 10px;
+}
+
+a.linkContainingLoggedInLogo {
+   text-decoration: none;
+}
+
+h1.loggedInLogo {
+   border: 0px;
+   background-color: white;
+   color: #003399;
+   margin: 0px 6px 10px 10px;
+   padding: 0px 2px 0px 15px;
+   font-family: Aharoni, sans-serif;
+   font-size: 1.5625em;
+}
+
+form.searchBar {
+  width: 46.153846%; /* 600px/1300px; where 1300px is the 'standard width' of the 'header.loggedInHeader' */
+  padding: 0px;
+}
+
+input.inputFieldForSearchBar {
+   width: 66.666667%;  /* 400px/600px where 600px is the 'standard width' of the 'form.searchBar' */
+   margin: 0px 0px 10px 0px;
+   color: #AAA;
+   background-color: white;
+   font-size: 0.875em;
+}
+
+input.searchButton {
+   margin: 4px 0px;
+}
+
+nav.importantLinks {
+   margin: 4px 50px 10px 0px;
+   background-color: #003399;
+}
+
+nav.importantLinks  ul {
+   margin: 0px;
+   list-style-type: none;
+}
+
+nav.importantLinks  li {
+   float: left;
+}
+
+a.importantLink {
+   font-size: 0.8125em;
+   font-weight: bolder;
+   text-decoration: none;
+   margin-left: 10px;
+   color: white;
+   padding: 5px;
+}
+
+input.logOutButton {
+   margin-top: 4px;
+   margin-right: 60px;
+   background-color: #003399;
+   color: white;
+   border-color: #003399;
+}
+
+input.logOutButton:hover {
+   background-color: #4477DD;
+}
+
+pre.spaceBelowLoggedInHeader {
+   margin-bottom: 50px;
+}
+
+@media all and (min-width: 560px) and (max-width: 1200px) {
+   header.loggedInHeader {
+      height: 70px;
+   }
+
+   pre.spaceBelowLoggedInHeader {
+      margin-bottom: 80px;
+   }
+
+   input.logOutButton {
+      margin-left: 50px;
+   }
+}
+
+@media all and (max-width: 560px) {
+   header.loggedInHeader {
+      height: 130px;
+      position: absolute;
+   }
+
+   pre.spaceBelowLoggedInHeader {
+      margin-bottom: 130px;
+   }
+
+   form.searchBar {
+      width: 80%;
+   }
+
+   input.logOutButton {
+      margin-left: 50px;
+   }
+}
