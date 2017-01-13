@@ -3,17 +3,13 @@
 <?php
    session_start();
 
-   include_once 'includeFiles/functionsForManagingLoginStatus.php';
    include_once 'includeFiles/functionsForCreatingMarkups.php';
-   include_once 'includeFiles/functionsForRetrievingDataFromDatabase.php';
+   include_once 'includeFiles/functionsToBeUsedAsTestConditions.php';
    include_once 'includeFiles/functionsForUpdatingDataInDatabase.php';
-   include_once 'includeFiles/miscellaneousFunctions.php';
+
 
    if ( userIsNotLoggedIn() ) {
-      $markup = getMarkupToTellTheUserToLogIn( $_SERVER['PHP_SELF'] );
-   }
-   else if ( logOutButtonHaveBeenClicked() ) {
-      logTheUserOut();
+      $markup = getMarkupToTellUserToLogIn();
    }
    else {
       $markup = 
@@ -25,16 +21,20 @@
          <p class="instructionForEditForm">
             Enter the name of your current city, and the name of the country
             where your current city is located. Then click the "Save" button.
-         </p>
+         </p> 
       ';
 
-      if ( userHaveNotClickedOnAnyButton() ) {
-         $markup .= getMarkupForFormForEditingCityDetailsAndSetValuesRetrievedFromDatabaseAsDefault();
+      if ( userHasNotClickedOnAnyButton() ) {
+         $markup .= getMarkupForEditCityDetailsFormAndSetCurrentCityValuesRetrievedFromDatabaseAsDefaultValues();
       }
-      else if ( saveButtonHaveBeenClicked() ) {
-         $markup .= validateAndPossiblyUpdateCurrentCityDetails();
+      else if ( userHasClickedOnSaveButton() && userDidNotInputValidCityDetails() ) {
+         $markup .= getMarkupForEditCityDetailsFormAndAppropriateErrorMessages();
       }
-      else if ( cancelButtonHaveBeenClicked() ) {
+      else if ( userHasClickedOnSaveButton() && userInputtedValidCityDetails() ) {
+         updateInDatabaseCurrentCityDetails();
+         header( 'Location: aboutMe.php#Current City' );
+      }
+      else if ( userHasClickedOnCancelButton() ) {
          header( 'Location: aboutMe.php#Current City' );
       }
 
@@ -42,65 +42,14 @@
       </div> <!-- end div.containerForEditForm -->
       ';
    }
-
-
-   function getMarkupForFormForEditingCityDetailsAndSetValuesRetrievedFromDatabaseAsDefault()
-   {
-      $rowContainingIdOfCurrentCity = retrieveFromDatabaseIdOfCurrentCity( $_SESSION['idOfLoggedInUser'] );
-      $idOfCurrentCity = $rowContainingIdOfCurrentCity['id_of_current_city'];
-
-      if ( existsInDatabase( $idOfCurrentCity ) ) {
-         $rowContainingCurrentCityDetails = retrieveFromDatabaseCityDetails( $idOfCurrentCity );
-
-         $defaultNameOfCity = 
-            capitalizeWordsThatShouldBeCapitalized( $rowContainingCurrentCityDetails['name_of_city'] );
-         $defaultNameOfCountry = 
-            capitalizeWordsThatShouldBeCapitalized( $rowContainingCurrentCityDetails['name_of_country'] );
-
-         return getMarkupForFormForEditingCityDetails( $defaultNameOfCity, $defaultNameOfCountry );
-      }
-      else {
-         return getMarkupForFormForEditingCityDetails( '', '' );
-      }
-
-   }
-
-
-   function validateAndPossiblyUpdateCurrentCityDetails()
-   {
-
-      if ( userDidNotEnterNameOfCity() || userDidNotEnterNameOfCountry() ) {
-         $defaultNameOfCity = ( userDidNotEnterNameOfCity() ? INVALID : $_POST['nameOfCity'] );
-         $defaultNameOfCountry = ( userDidNotEnterNameOfCountry() ? INVALID : $_POST['nameOfCountry'] );
-
-         return getMarkupForFormForEditingCityDetails( $defaultNameOfCity, $defaultNameOfCountry );
-      }
-      else {
-         updateInDatabaseCurrentCityDetails();
-         header( 'Location: aboutMe.php#Current City' );
-      }
-
-   }
-
-
-   function userDidNotEnterNameOfCity()
-   {
-      return $_POST['nameOfCity'] == '';
-   }
-
-
-   function userDidNotEnterNameOfCountry()
-   {
-      return $_POST['nameOfCountry'] == '';
-   }
 ?>
 
 
 <html>
    <head>
-      <title>Edit Current City</title>
+      <title>Edit Current City | ife_facebook</title>
       <link href="stylesheets/genericStylesheet.css" type="text/css" rel="stylesheet"/>
-      <link href="stylesheets/stylesheetForLoggedInHeaderAndLoggedInBody.css" type="text/css" rel="stylesheet"/>
+      <link href="stylesheets/stylesheetForLoggedInHeader.css" type="text/css" rel="stylesheet"/>
       <link href="stylesheets/stylesheetForFormForEditingProfileDetails.css" type="text/css" rel="stylesheet"/>
    </head>
 

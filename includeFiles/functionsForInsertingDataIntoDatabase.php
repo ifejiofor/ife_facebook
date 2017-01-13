@@ -1,5 +1,5 @@
 <?php
-   include_once 'includeFiles/functionsForInteractingWithDatabase.php';
+   include_once 'includeFiles/functionsForAccessingDatabase.php';
    include_once 'includeFiles/functionsForStoringDataIntoSESSION.php';
    include_once 'includeFiles/miscellaneousFunctions.php';
    include_once 'includeFiles/usefulConstants.php';
@@ -13,24 +13,15 @@
    {
       global $handleOfIfeFacebookDatabase;
 
-      if ( nameOfLanguageIsInvalid( $_POST['nameOfNewLanguage'] ) ) {
-         return NULL;
-      }
+      $rowContainingIdOfLanguage = retrieveFromDatabaseIdOfLanguageAssociatedWithNameOfLanguage( $nameOfNewLanguage );
 
-      $query = '
-         SELECT language_id FROM languages
-            WHERE name_of_language = "' . strtolower( $_POST['nameOfNewLanguage'] ) . '"';
-
-      $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
-      $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
-
-      if ( $rowFromResultOfQuery != false ) {
-         $idOfLatestLanguage = $rowFromResultOfQuery['language_id'];
+      if ( $rowContainingIdOfLanguage != false ) {
+         $idOfLatestLanguage = $rowContainingIdOfLanguage['language_id'];
       }
       else {
          $query = '
             INSERT INTO languages ( name_of_language )
-               VALUES ( "' . strtolower( $_POST['nameOfNewLanguage'] ) . '" )';
+               VALUES ( "' . strtolower( $nameOfNewLanguage ) . '" )';
 
          sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
          $idOfLatestLanguage = mysql_insert_id( $handleOfIfeFacebookDatabase );
@@ -86,14 +77,12 @@
       global $handleOfIfeFacebookDatabase;
 
       // The test for invalid password have not yet been implemented
-      if ( isNotValidUserName( $_POST['firstName'] ) ) {
-         return INVALID_FIRST_NAME;
+      if ( isNotValidUserName( $_POST['firstName'] ) || isNotValidUserName( $_POST['surname'] ) ) {
+         return;
       }
-      else if ( isNotValidUserName( $_POST['surname'] ) ) {
-         return INVALID_SURNAME;
-      }
-      else if ( isNotValidEmailAddress( $_POST['userName'] ) && isNotValidPhoneNumber( $_POST['userName'] ) ) {
-         return INVALID_USER_NAME;
+
+      if ( isNotValidEmailAddress( $_POST['userName'] ) && isNotValidPhoneNumber( $_POST['userName'] ) ) {
+         return;
       }
 
       $safeFirstName = mysql_real_escape_string( $_POST['firstName'] );
@@ -118,7 +107,30 @@
          )';
 
       sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+   }
 
-      return INSERTION_SUCCESSFUL;
+
+   function insertIntoDatabaseCityEntryAndGetIdOfCityEntry( $nameOfCity, $nameOfCountry )
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      $safeNameOfCity = mysql_real_escape_string( $nameOfCity );
+      $safeNameOfCountry = mysql_real_escape_string( $nameOfCountry );
+
+      $row = retrieveFromDatabaseCityIdAssociatedWithNameOfCityAndNameOfCountry( $nameOfCity, $nameOfCountry );
+
+      if ( $row != false ) {
+         $idOfCity = $row['city_id'];
+      }
+      else {
+         $query = '
+            INSERT INTO cities ( name_of_city, name_of_country )
+               VALUES ( "' . strtolower( $safeNameOfCity ) . '", "' . strtolower( $safeNameOfCountry ) . '" )';
+
+         sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+         $idOfCity = mysql_insert_id( $handleOfIfeFacebookDatabase );
+      }
+
+      return $idOfCity;
    }
 ?>

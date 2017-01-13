@@ -3,14 +3,12 @@
 <?php
    session_start();
 
-   include_once '/includeFiles/functionsForManagingLoginStatus.php';
-   include_once '/includeFiles/functionsForCreatingMarkups.php';
+   include_once 'includeFiles/functionsToBeUsedAsTestConditions.php';
+   include_once 'includeFiles/functionsForCreatingMarkups.php';
+
 
    if ( userIsNotLoggedIn() ) {
-      $markup = getMarkupToTellTheUserToLogIn( $_SERVER['PHP_SELF'] );
-   }
-   else if ( logOutButtonHaveBeenClicked() ) {
-      logTheUserOut();
+      $markup = getMarkupToTellUserToLogIn();
    }
    else {
       $markup = 
@@ -24,7 +22,9 @@
          getMarkupToDisplayGenderDetailsOfLoggedInUser() .
          getMarkupToDisplayLanguageDetailsOfLoggedInUser() .
          getMarkupToDisplayFavouriteQuoteDetailsOfLoggedInUser() .
-         getMarkupToDisplayAboutMeDetailsOfLoggedInUser() . '
+         getMarkupToDisplayAboutMeDetailsOfLoggedInUser() .
+         getMarkupToDisplayPhoneNumberDetailsOfLoggedInUser() .
+         getMarkupToDisplayEmailAddressDetailsOfLoggedInUser() . '
       </section>  <!-- end section.mainSectionOfProfilePage -->
       ';
    }
@@ -32,7 +32,7 @@
 
 <html>
    <head>
-      <title>About Me</title>
+      <title>About Me | ife_facebook</title>
       <link href="stylesheets/genericStylesheet.css" type="text/css" rel="stylesheet"/>
       <link href="stylesheets/stylesheetForLoggedInHeader.css" type="text/css" rel="stylesheet"/>
       <link href="stylesheets/stylesheetForTopOfProfilePage.css" type="text/css" rel="stylesheet"/>

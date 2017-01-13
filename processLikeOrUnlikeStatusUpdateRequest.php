@@ -4,7 +4,7 @@
    include_once 'includeFiles/functionsForInsertingDataIntoDatabase.php';
    include_once 'includeFiles/functionsForUpdatingDataInDatabase.php';
    include_once 'includeFiles/functionsForDeletingDataFromDatabase.php';
-   include_once 'includeFiles/functionsForManagingLoginStatus.php';
+   include_once 'includeFiles/functionsToBeUsedAsTestConditions.php';
 
    if ( userIsLoggedIn() && userHaveClickedOnTheLikeButton() ) {
       insertIntoDatabaseEntryToIndicateThatLoggedInUserLikesStatusUpdate( $_POST['idOfStatusUpdate'] );
@@ -18,17 +18,5 @@
    }
    else {
       header( 'Location: index.php' );
-   }
-
-
-   function userHaveClickedOnTheLikeButton()
-   {
-      return isset( $_POST['likeButton'] );
-   }
-
-
-   function userHaveClickedOnTheUnlikeButton()
-   {
-      return isset( $_POST['unlikeButton'] );
    }
 ?>

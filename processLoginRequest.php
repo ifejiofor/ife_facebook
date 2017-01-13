@@ -18,84 +18,35 @@
 
    session_start();
 
-   include_once '/includeFiles/functionsForCreatingMarkups.php';
-   include_once '/includeFiles/functionsForRetrievingDataFromDatabase.php';
-   include_once '/includeFiles/functionsForStoringDataIntoSESSION.php';
+   include_once 'includeFiles/functionsForCreatingMarkups.php';
+   include_once 'includeFiles/functionsForRetrievingDataFromDatabase.php';
+   include_once 'includeFiles/functionsForStoringDataIntoSESSION.php';
 
 
-   if ( userHaveFilledTheLoginForm() ) {
-      $markup = validateTheUserAndPossiblyLogTheUserIn();
-   }
-   else {
+   if ( userDidNotFillTheLoginForm() ) {
       header( 'Location: index.php' );
    }
-
-
-   function userHaveFilledTheLoginForm()
-   {
-      return isset( $_POST['userName'] );
+   else if ( userDidNotInputCorrectLoginDetails() ) {
+      $markup = getMarkupToTellUserToReEnterLoginDetails();
+   }
+   else if ( userInputtedCorrectLoginDetails() ) {
+      logTheUserIn();
+      storeIntoSESSIONIdOfAllFriendsAndTotalNumberOfFriendsOfLoggedInUser();
+      storeIntoSESSIONFirstNameOfLoggedInUser();
+      redirectToTheSourcePage();
    }
 
 
-   function validateTheUserAndPossiblyLogTheUserIn()
+   function userDidNotFillTheLoginForm()
    {
-      $loginDetailsFromDatabase = retrieveFromDatabaseUserIdAndLoginPassword();
-
-      if ( userNameIsNotCorrect( $loginDetailsFromDatabase ) ) {
-         return getMarkupToShowThatUserNameIsNotCorrect();
-      }
-      else if ( userPasswordIsNotCorrect( $loginDetailsFromDatabase ) ) {
-         return getMarkupToShowThatUserPasswordIsNotCorrect();
-      }
-      else {
-         logTheUserIn( $loginDetailsFromDatabase['user_id'] );
-         storeIntoSESSIONIdOfAllFriendsAndTotalNumberOfFriendsOfLoggedInUser();
-         storeIntoSESSIONFirstNameOfLoggedInUser();
-         redirectToTheSourcePage();
-      }
-
-   }
-
-
-   function userNameIsNotCorrect( $loginDetailsFromDatabase )
-   {
-      return $loginDetailsFromDatabase == false;
-   }
-
-
-   function getMarkupToShowThatUserNameIsNotCorrect()
-   {
-      return '
-      <div class="containerForEditForm">
-         <h3>The email address or phone number you entered is not correct. Why not try to login again?</h3>
-      '  . 
-         getMarkupForLoginFormWithDefaultValues( NULL, NULL ) . '
-      </div> 
-      ';
-   }
-
-
-   function userPasswordIsNotCorrect( $loginDetailsFromDatabase )
-   {
-      return $loginDetailsFromDatabase['login_password'] != $_POST['userPassword'];
-   }
-
-
-   function getMarkupToShowThatUserPasswordIsNotCorrect()
-   {
-      return '
-      <div class="containerForEditForm">
-         <h3>The password you entered is not correct. Why not try to login again?</h3>
-      '  . 
-         getMarkupForLoginFormWithDefaultValues( $_POST['userName'], NULL ) . '
-      </div>
-      ';
+      return !isset( $_POST['loginButton'] );
    }
 
 
    function logTheUserIn( $idOfTheUser )
    {
-      $_SESSION['idOfLoggedInUser'] = $idOfTheUser;
+      $rowContainingUserId = retrieveFromDatabaseUserIdAssociatedWithUserName( $_POST['userName'] );
+      $_SESSION['idOfLoggedInUser'] = $rowContainingUserId['user_id'];
    }
 
 
@@ -114,6 +65,7 @@
 
 <html>
    <head>
+      <title>Unable To Log In | ife_facebook</title>
       <link href="stylesheets/genericStylesheet.css" type="text/css" rel="stylesheet"/>
       <link href="stylesheets/stylesheetForFormForEditingProfileDetails.css" type="text/css" rel="stylesheet"/>
    </head>

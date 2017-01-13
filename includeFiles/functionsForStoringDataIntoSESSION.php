@@ -87,19 +87,19 @@
 
    function storeIntoSESSIONInformationAboutStatusUpdates( $offset, $numberOfRows )
    {
-      $idOfRelevantStatusUpdates = 
+      $idOfStatusUpdates = 
          retrieveFromDatabaseAndReturnInArrayIdOfStatusUpdates( $offset, $numberOfRows );
 
-      for ( $index = 0; $index < sizeof( $idOfRelevantStatusUpdates ); $index++ ) {
-         $_SESSION['idOfRelevantStatusUpdate' . $index] = $idOfRelevantStatusUpdates[$index];
+      for ( $index = 0; $index < sizeof( $idOfStatusUpdates ); $index++ ) {
+         $_SESSION['idOfStatusUpdate' . $index] = $idOfStatusUpdates[$index];
       }
 
-      $_SESSION['totalNumberOfStatusUpdatesCurrentlyListed'] = sizeof( $idOfRelevantStatusUpdates );
-      $_SESSION['totalNumberOfStatusUpdatesDisplayedSoFar'] = $offset + sizeof( $idOfRelevantStatusUpdates );
+      $_SESSION['totalNumberOfStatusUpdatesStoredInSESSION'] = sizeof( $idOfStatusUpdates );
+      $_SESSION['totalNumberOfStatusUpdatesDisplayedSoFar'] = $offset + sizeof( $idOfStatusUpdates );
    }
 
 
-   function storeIntoSESSIONInformationAboutComments( $idOfStatusUpdate, $offset, $numberOfRows )
+   function storeIntoSESSIONInformationAboutCommentsOnStatusUpdate( $idOfStatusUpdate, $offset, $numberOfRows )
    {
       $idOfAssociatedComments = retrieveFromDatabaseAndReturnInArrayIdOfComments( 
          $idOfStatusUpdate, $offset, $numberOfRows );

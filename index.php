@@ -19,28 +19,14 @@
 
    session_start();
 
-   include_once 'includeFiles/functionsForManagingLoginStatus.php';
+   include_once 'includeFiles/functionsToBeUsedAsTestConditions.php';
    include_once 'includeFiles/functionsForCreatingMarkups.php';
    include_once 'includeFiles/functionsForStoringDataIntoSESSION.php';
-   include_once 'includeFiles/miscellaneousFunctions.php';
    include_once 'includeFiles/usefulConstants.php';
 
-   if ( userIsNotLoggedIn() ) {
-      $markup = '
-      <header class="homepageHeader">' .
-         getMarkupForIfeFacebookLogo() .
-         getMarkupForLoginFormWithoutDefaultValues() . '
-      </header>  <!-- end header.homepageHeader -->
 
-      <div class="homepageBody">' .
-         getMarkupForShortDescriptionOfIfeFacebook() .
-         getMarkupForSignUpForm() . 
-         getMarkupToDisplayLinkToSignUpPage() . '
-      </div>  <!-- end div.homepageBody -->
-      ';
-   }
-   else if ( logOutButtonHaveBeenClicked() ) {
-      logTheUserOut();
+   if ( userIsNotLoggedIn() ) {
+      $markup = getMarkupForLoggedOutVersionOfIfeFacebookHomepage();
    }
    else {
       $markup = 
@@ -51,26 +37,26 @@
          getMarkupToDisplayTextAreaForPostingStatusUpdate() .
          getMarkupToDisplayLinkForRefreshingThisPage();
 
-      if ( userHaveNotClickedOnAnyButton() ) {
-         $markup .= getMarkupToListStatusUpdatesFromDatabase( 0, DEFAULT_NUMBER_OF_ROWS_FOR_STATUS_UPDATES );
+      if ( userHasNotClickedOnAnyLink() ) {
+         $markup .= getMarkupToDisplaySomeStatusUpdatesFromDatabase( 0, DEFAULT_NUMBER_OF_ROWS_FOR_STATUS_UPDATES );
          storeIntoSESSIONInformationAboutStatusUpdates( 0, DEFAULT_NUMBER_OF_ROWS_FOR_STATUS_UPDATES );
       }
-      else if ( userHaveClickedOnTheLinkForViewingComments() ) {
-         $markup .= getMarkupToListStatusUpdatesFromSESSIONShowingCommentsOnTheRequiredStatusUpdate();
+      else if ( userHasClickedOnTheLinkForViewingComments() ) {
+         $markup .= getMarkupToDisplayAllStatusUpdatesStoredInSESSIONAndShowCommentsOnTheRequiredStatusUpdate();
       }
-      else if ( userHaveClickedOnTheLinkForViewingNamesOfLikers() ) {
-         $markup .= getMarkupToListStatusUpdatesFromSESSIONShowingNamesOfLikersOfTheRequiredStatusUpdate();
+      else if ( userHasClickedOnTheLinkForViewingNamesOfLikers() ) {
+         $markup .= getMarkupToDisplayAllStatusUpdatesStoredInSESSIONAndShowNamesOfLikersOfTheRequiredStatusUpdate();
       }
-      else if ( userHaveClickedOnTheLinkForHidingComments() || userHaveClickedOnTheLinkForHidingNamesOfLikers() ) {
-         $markup .= getMarkupToListStatusUpdatesFromSESSION();
+      else if ( userHasClickedOnTheLinkForHidingComments() || userHasClickedOnTheLinkForHidingNamesOfLikers() ) {
+         $markup .= getMarkupToDisplayAllStatusUpdatesStoredInSESSION();
       }
-      else if ( userHaveClickedOnTheLinkForViewingMoreStatusUpdates() ) {
-         $markup .= getMarkupToListStatusUpdatesFromDatabase( $_GET['offset'], $_GET['numberOfRows'] );
-         storeIntoSESSIONInformationAboutStatusUpdates( $_GET['offset'], $_GET['numberOfRows'] );
+      else if ( userHasClickedOnTheLinkForViewingMoreStatusUpdates() ) {
+         $markup .= getMarkupToDisplaySomeStatusUpdatesFromDatabase( $_GET['offsetForStatusUpdates'], $_GET['numberOfStatusUpdatesToBeDisplayed'] );
+         storeIntoSESSIONInformationAboutStatusUpdates( $_GET['offsetForStatusUpdates'], $_GET['numberOfStatusUpdatesToBeDisplayed'] );
       }
-      else {
+    /*  else {
          header( 'Location: ' . $_SERVER['PHP_SELF'] );
-      }
+      } */
 
       $markup .= 
          getMarkupToDisplayLinkForViewingMoreStatusUpdates() . '

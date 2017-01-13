@@ -70,9 +70,22 @@
    }
 
 
-/*   function isNotEmpty( $rowFromResultOfQuery )
+   // I may later move this function to the file micellaneousFunctions.php
+   function getArrayContainingResultOfQuery( $resultOfQuery, $column )
    {
-      return $rowFromResultOfQuery != false;
+      $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
+
+      if ( $rowFromResultOfQuery == false ) {
+         return NULL;
+      }
+      else {
+
+         while ( $rowFromResultOfQuery != false ) {
+            $array[] = $rowFromResultOfQuery[$column];
+            $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
+         }
+
+         return $array;
+      }
    }
-*/
 ?>

@@ -3,19 +3,15 @@
 <?php
    session_start();
 
-   include_once 'includeFiles/functionsForManagingLoginStatus.php';
    include_once 'includeFiles/functionsForCreatingMarkups.php';
-   include_once 'includeFiles/functionsForRetrievingDataFromDatabase.php';
+   include_once 'includeFiles/functionsToBeUsedAsTestConditions.php';
    include_once 'includeFiles/functionsForUpdatingDataInDatabase.php';
-   include_once 'includeFiles/miscellaneousFunctions.php';
+
 
    if ( userIsNotLoggedIn() ) {
-      $markup = getMarkupToTellTheUserToLogIn( $_SERVER['PHP_SELF'] );
+      $markup = getMarkupToTellUserToLogIn();
    }
-   else if ( logOutButtonHaveBeenClicked() ) {
-      logTheUserOut();
-   }
-   if ( userIsLoggedIn() ) {
+   else {
       $markup = 
          getMarkupForHeader() . '
       <div class="containerForEditForm">
@@ -28,13 +24,17 @@
          </p>
       ';
 
-      if ( userHaveNotClickedOnAnyButton() ) {
-         $markup .= getMarkupForFormForEditingCityDetailsAndSetValuesRetrievedFromDatabaseAsDefault();
+      if ( userHasNotClickedOnAnyButton() ) {
+         $markup .= getMarkupForEditCityDetailsFormAndSetHometownValuesRetrievedFromDatabaseAsDefaultValues();
       }
-      else if ( saveButtonHaveBeenClicked() ) {
-         $markup .= validateAndPossiblyUpdateHometownDetails();
+      else if ( userHasClickedOnSaveButton() && userDidNotInputValidCityDetails() ) {
+         $markup .= getMarkupForEditCityDetailsFormAndAppropriateErrorMessages();
       }
-      else if ( cancelButtonHaveBeenClicked() ) {
+      else if ( userHasClickedOnSaveButton() && userInputtedValidCityDetails() ) {
+         updateInDatabaseHometownDetails();
+         header( 'Location: aboutMe.php#Hometown' );
+      }
+      else if ( userHasClickedOnCancelButton() ) {
          header( 'Location: aboutMe.php#Hometown' );
       }
 
@@ -42,65 +42,14 @@
       </div> <!-- end div.containerForEditForm -->
       ';
    }
-
-
-   function getMarkupForFormForEditingCityDetailsAndSetValuesRetrievedFromDatabaseAsDefault()
-   {
-      $rowContainingIdOfHometown = retrieveFromDatabaseIdOfHometown( $_SESSION['idOfLoggedInUser'] );
-      $idOfHometown = $rowContainingIdOfHometown['id_of_hometown'];
-
-      if ( existsInDatabase( $idOfHometown ) ) {
-         $rowContainingHometownDetails = retrieveFromDatabaseCityDetails( $idOfHometown );
-
-         $defaultNameOfCity = 
-            capitalizeWordsThatShouldBeCapitalized( $rowContainingHometownDetails['name_of_city'] );
-         $defaultNameOfCountry = 
-            capitalizeWordsThatShouldBeCapitalized( $rowContainingHometownDetails['name_of_country'] );
-
-         return getMarkupForFormForEditingCityDetails( $defaultNameOfCity, $defaultNameOfCountry );
-      }
-      else {
-         return getMarkupForFormForEditingCityDetails( '', '' );
-      }
-
-   }
-
-
-   function validateAndPossiblyUpdateHometownDetails()
-   {
-
-      if ( userDidNotEnterNameOfCity() || userDidNotEnterNameOfCountry() ) {
-         $defaultNameOfCity = ( userDidNotEnterNameOfCity() ? INVALID : $_POST['nameOfCity'] );
-         $defaultNameOfCountry = ( userDidNotEnterNameOfCountry() ? INVALID : $_POST['nameOfCountry'] );
-
-         return getMarkupForFormForEditingCityDetails( $defaultNameOfCity, $defaultNameOfCountry );
-      }
-      else {
-         updateInDatabaseHometownDetails();
-         header( 'Location: aboutMe.php#Hometown' );
-      }
-
-   }
-
-
-   function userDidNotEnterNameOfCity()
-   {
-      return $_POST['nameOfCity'] == '';
-   }
-
-
-   function userDidNotEnterNameOfCountry()
-   {
-      return $_POST['nameOfCountry'] == '';
-   }
 ?>
 
 
 <html>
    <head>
-      <title>Edit Hometown</title>
+      <title>Edit Hometown | ife_facebook</title>
       <link href="stylesheets/genericStylesheet.css" type="text/css" rel="stylesheet"/>
-      <link href="stylesheets/stylesheetForLoggedInHeaderAndLoggedInBody.css" type="text/css" rel="stylesheet"/>
+      <link href="stylesheets/stylesheetForLoggedInHeader.css" type="text/css" rel="stylesheet"/>
       <link href="stylesheets/stylesheetForFormForEditingProfileDetails.css" type="text/css" rel="stylesheet"/>
    </head>
 

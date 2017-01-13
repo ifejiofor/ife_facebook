@@ -1,5 +1,5 @@
 <?php
-   include_once 'includeFiles/functionsForInteractingWithDatabase.php';
+   include_once 'includeFiles/functionsForAccessingDatabase.php';
 
    if ( !isset( $handleOfIfeFacebookDatabase ) ) {
       $handleOfIfeFacebookDatabase = connectToDatabase( 'ife_facebook_database' );

@@ -3,14 +3,11 @@
 <?php
    session_start();
 
-   include_once '/includeFiles/functionsForManagingLoginStatus.php';
-   include_once '/includeFiles/functionsForCreatingMarkups.php';
+   include_once 'includeFiles/functionsToBeUsedAsTestConditions.php';
+   include_once 'includeFiles/functionsForCreatingMarkups.php';
 
    if ( userIsNotLoggedIn() ) {
-      $markup = getMarkupToTellTheUserToLogin( $_SERVER['PHP_SELF'] );
-   }
-   else if ( logOutButtonHaveBeenClicked() ) {
-      logTheUserOut();
+      $markup = getMarkupToTellUserToLogin();
    }
    else {
       $markup = 
@@ -26,7 +23,7 @@
 
 <html>
    <head>
-      <title>Timeline</title>
+      <title>My Timeline | ife_facebook</title>
 
       <link href="stylesheets/genericStylesheet.css" type="text/css" rel="stylesheet"/>
       <link href="stylesheets/stylesheetForLoggedInHeader.css" type="text/css" rel="stylesheet"/>

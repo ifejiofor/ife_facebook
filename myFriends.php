@@ -3,15 +3,14 @@
 <?php
    session_start();
 
-   include_once '/includeFiles/functionsForManagingLoginStatus.php';
-   include_once '/includeFiles/functionsForInteractingWithDatabase.php';
-   include_once '/includeFiles/functionsForCreatingMarkups.php';
+   include_once 'includeFiles/functionsToBeUsedAsTestConditions.php';
+   include_once 'includeFiles/functionsForAccessingDatabase.php';
+   include_once 'includeFiles/functionsForCreatingMarkups.php';
+
+   // NB: The script in this page has not been completed perfectly. I hope to visit it soon
 
    if ( userIsNotLoggedIn() ) {
       $markup = getMarkupToTellTheUserToLogIn( $_SERVER['PHP_SELF'] );
-   }
-   else if ( logOutButtonHaveBeenClicked() ) {
-      logTheUserOut();
    }
    else {
       $handleOfDatabase = connectToDatabase( 'ife_facebook_database' );
@@ -57,10 +56,10 @@
 
 <html>
    <head>
-      <title>My Friends</title>
+      <title>My Friends | ife_facebook</title>
 
       <link href="stylesheets/genericStylesheet.css" type="text/css" rel="stylesheet"/>
-      <link href="stylesheets/stylesheetForLoggedInHeaderAndLoggedInBody.css" type="text/css" rel="stylesheet"/>
+      <link href="stylesheets/stylesheetForLoggedInHeader.css" type="text/css" rel="stylesheet"/>
       <link href="stylesheets/stylesheetForTopOfProfilePage.css" type="text/css" rel="stylesheet"/>
    </head>
 

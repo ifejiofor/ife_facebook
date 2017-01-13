@@ -25,6 +25,108 @@
       }
 
    }
+   function formatAboutMeDetails( $row )
+   {
+      return $row['about_me'];
+   }
+
+
+   function formatBirthdayDetails( $row )
+   {
+      $nameOfMonthOfBirth = convertToNameOfMonth( $row['month_of_birth'] );
+
+      return $nameOfMonthOfBirth . ' ' . $row['day_of_birth'] . ', ' . $row['year_of_birth'];
+   }
+
+
+   function formatCityDetails( $row )
+   {
+      $capitalizedNameOfCity = capitalizeWordsThatShouldBeCapitalized( $row['name_of_city'] );
+      $capitalizedNameOfCountry = capitalizeWordsThatShouldBeCapitalized( $row['name_of_country'] );
+
+      return  $capitalizedNameOfCity . ', ' . $capitalizedNameOfCountry;
+   }
+
+
+   function formatFavouriteQuoteDetails( $row )
+   {
+      return '<q>' . $row['favourite_quotes'] . '</q>';
+   }
+
+
+   function formatGenderDetails( $row )
+   {
+      return capitalizeWordsThatShouldBeCapitalized( $row['name_of_gender'] );
+   }
+
+
+   function formatLanguageDetails( $arrayContainingNamesOfLanguages )
+   {
+      $INDEX_OF_FIRST_LANGUAGE = 0;
+
+      $formattedLanguageDetails = $arrayContainingNamesOfLanguages[$INDEX_OF_FIRST_LANGUAGE];
+
+      if ( sizeof( $arrayContainingNamesOfLanguages ) > 1 ) {
+         $INDEX_OF_LAST_LANGUAGE = sizeof( $arrayContainingNamesOfLanguages ) - 1;
+
+         for ( $index = 1; $index < $INDEX_OF_LAST_LANGUAGE; $index++ ) {
+            $formattedLanguageDetails .= ', ' . $arrayContainingNamesOfLanguages[$index];
+         }
+
+         $formattedLanguageDetails .= ' and ' . $arrayContainingNamesOfLanguages[$INDEX_OF_LAST_LANGUAGE];
+      }
+
+      return capitalizeWordsThatShouldBeCapitalized( $formattedLanguageDetails );
+   }
+
+
+   function formatPhoneNumberDetails( $row )
+   {
+      return $row['phone_number'];
+   }
+
+
+   function formatEmailAddressDetails( $row )
+   {
+      return $row['email_address'];
+   }
+
+
+   function formatTimeShowingAmOrPm( $hour, $minute )
+   {
+      $minuteWithPaddingZero = addPaddingZeroToTheLeftIfNecessary( $minute );
+
+      if ( $hour < 12 ) {
+         return $hour . ':' . $minuteWithPaddingZero . 'am';
+      }
+      else if ( $hour == 12 ) {
+
+         if ( $minute == 0 ) {
+            return $hour . ':' . $minuteWithPaddingZero . 'noon';
+         }
+         else {
+            return $hour . ':' . $minuteWithPaddingZero . 'pm';
+         }
+
+      }
+      else {
+         return ( $hour - 12 ) . ':' . $minuteWithPaddingZero . 'pm';
+      }
+
+   }
+
+
+   function addPaddingZeroToTheLeftIfNecessary( $integerValue )
+   {
+
+      if ( $integerValue <= 9 ) {
+         return '0' . $integerValue;
+      }
+      else {
+         return (string)$integerValue;
+      }
+
+   }
 
 
    /*
@@ -39,154 +141,6 @@
       return ucwords( $requiredString );
    }
 
-   /*
-      TODO: I will write the definition of this function later when I'm chanced.
-   */
-   function isValidCalenderDate( $day, $month, $year ) {
-      return true;
-   } 
-
-
-   function existsInDatabase( $valueRetrievedFromDatabase )
-   {
-      return $valueRetrievedFromDatabase != NULL && $valueRetrievedFromDatabase != false;
-   }
-
-
-   function doesNotExistInDatabase( $valueRetrievedFromDatabase )
-   {
-      return !existsInDatabase( $valueRetrievedFromDatabase );
-   }
-
-   function saveButtonHaveBeenClicked()
-   {
-      return isset( $_POST['saveButton'] );
-   }
-
-
-   function cancelButtonHaveBeenClicked()
-   {
-      return isset( $_POST['cancelButton'] );
-   }
-
-
-   function editLanguageButtonHaveBeenClicked()
-   {
-      return isset( $_POST['editLanguageButton'] );
-   }
-
-
-   function deleteLanguageButtonHaveBeenClicked()
-   {
-      return isset( $_POST['deleteLanguageButton'] );
-   }
-
-
-   function addNewLanguageButtonHaveBeenClicked()
-   {
-      return isset( $_POST['addNewLanguageButton'] );
-   }
-
-
-   function doneButtonHaveBeenClicked()
-   {
-      return isset( $_POST['doneButton'] );
-   }
-
-
-   function userHaveNotClickedOnAnyButton()
-   {
-      return !$_POST && !$_GET;
-   }
-
-
-   function userHaveClickedOnTheLinkForViewingComments()
-   {
-      return isset( $_GET['requiredAction'] ) && $_GET['requiredAction'] == 'viewComments';
-   }
-
-
-   function userHaveClickedOnTheLinkForHidingComments()
-   {
-      return isset( $_GET['requiredAction'] ) && $_GET['requiredAction'] == 'hideComments';
-   }
-
-
-   function userHaveClickedOnTheLinkForViewingMoreStatusUpdates()
-   {
-      return isset( $_GET['requiredAction'] ) && $_GET['requiredAction'] == 'viewMoreStatusUpdates';
-   }
-
-
-   function userHaveClickedOnTheLinkForViewingNamesOfLikers()
-   {
-      return isset( $_GET['requiredAction'] ) && $_GET['requiredAction'] == 'viewNamesOfLikers';
-   }
-
-
-   function userHaveClickedOnTheLinkForHidingNamesOfLikers()
-   {
-      return isset( $_GET['requiredAction'] ) && $_GET['requiredAction'] == 'hideNamesOfLikers';
-   }
-
-
-   function isValidEmailAddress( $email )
-   {
-      return !isNotValidEmailAddress( $email );
-   }
-
-
-   function isNotValidEmailAddress( $email )
-   {
-      if ( emailUserNameIsNotValid( $email ) ) {
-         return true;
-      }
-
-      $startingIndexOfEmailProviderName = getStartingIndexOfEmailProviderName( $email );
-
-      if ( emailProviderNameIsNotValid( $email, $startingIndexOfEmailProviderName ) ) {
-         return true;
-      }
-
-      $startingIndexOfEmailProviderExtension = 
-         getStartingIndexOfEmailProviderExtension( $email, $startingIndexOfEmailProviderName );
-
-      if ( emailProviderExtensionIsNotValid( $email, $startingIndexOfEmailProviderExtension ) ) {
-         return true;
-      }
-
-      return false;
-   }
-
-
-   function emailUserNameIsNotValid( $email )
-   {
-
-      for ( $index = 0; $index < strlen( $email ) && $email[$index] != '@' && 
-         isValidEmailUserNameCharacter( $email[$index] ); $index++ )
-         ;
-
-      if ( $index == strlen( $email ) ) {
-         return true;
-      }
-
-      if ( $email[$index] == '@' ) {
-         return $index == 0;
-      }
-
-      if ( !isValidEmailUserNameCharacter( $email[$index] ) ) {
-         return true;
-      }
-
-   }
-
-
-   function isValidEmailUserNameCharacter( $char )
-   {
-      return  isAlpha( $char ) || isDigit( $char ) || 
-         isSpecialCharacterAllowedInEmailUserName( $char );
-   }
-
 
    function getStartingIndexOfEmailProviderName( $email )
    {
@@ -194,28 +148,6 @@
          ;
 
       return $index + 1;
-   }
-
-
-   function emailProviderNameIsNotValid( $email, $startingIndexOfEmailProviderName )
-   {
-
-      for ( $index = $startingIndexOfEmailProviderName; $index < strlen( $email ) && 
-         $email[$index] != '.' && isAlpha( $email[$index] ); $index++ )
-         ;
-
-      if ( $index == strlen( $email ) ) {
-         return true;
-      }
-
-      if ( $email[$index] == '.' ) {
-         return $index == $startingIndexOfEmailProviderName;
-      }
-
-      if ( !isAlpha( $email[$index] ) ) {
-         return true;
-      }
-
    }
 
 
@@ -228,61 +160,10 @@
    }
 
 
-   function emailProviderExtensionIsNotValid( $email, $startingIndexOfEmailProviderExtension )
-   {
-      for ( $index = $startingIndexOfEmailProviderExtension; $index < strlen( $email ) && 
-         isAlpha( $email[$index] ) ; $index++ )
-         ;
-
-      if ( $index == strlen( $email ) ) {
-         return $index == $startingIndexOfEmailProviderExtension;
-      }
-
-      if ( !isAlpha( $email[$index] ) ) {
-         return true;
-      }
-
-   }
-
-
-   function isNotValidPhoneNumber( $phoneNumber )
-   {
-      return !isValidPhoneNumber( $phoneNumber );
-   }
-
-
-   function isValidPhoneNumber( $phoneNumber )
-   {
-      if ( $phoneNumber[0] != '+' && $phoneNumber[0] != '0' ) {
-         return false;
-      }
-
-      if ( $phoneNumber[0] == '+' && strlen( $phoneNumber ) != 14 ) {
-         return false;
-      }
-
-      if ( $phoneNumber[0] == '0' && strlen( $phoneNumber ) != 11 ) {
-         return false;
-      }
-
-      for ( $index = 1; $index < strlen( $phoneNumber ) && isDigit( $phoneNumber[$index] ); $index++ )
-         ;
-
-      if ( $index == strlen( $phoneNumber ) ) {
-         return true;
-      }
-
-      if ( !isDigit( $phoneNumber[$index] ) ) {
-         return false;
-      }
-
-   }
-
-
    function convertToPhoneNumberWithCountryCode( $phoneNumber, $countryCode = '+234' )
    {
 
-      if (  $phoneNumber[0] == '0' ) {
+      if ( $phoneNumber[0] == '0' ) {
          $phoneNumberWithCountryCode = $countryCode;
 
          for ( $index = 1; $index < strlen( $phoneNumber ); $index++ ) {
@@ -294,138 +175,83 @@
       else {
          return $phoneNumber;
       }
-
    }
 
 
-   function isNotValidUserName( $string )
+   function redirectToThePageContainingSignUpFormAndTellThePageAboutInvalidUserInputs()
    {
-      return !isValidUserName( $string );
+      header( 'Location: ' . $_POST['urlOfSourcePage'] . '?' . getInformationAboutInvalidUserInputs() );
    }
 
 
-   function isValidUserName( $string )
+   function getInformationAboutInvalidUserInputs()
    {
-      for ( $index = 0; $index < strlen( $string ); $index++ ) {
+      if ( userDidNotFillAllFieldsInTheSignUpForm() ) {
+         $informationAboutInvalidUserInputs = 'requiredAction=showThatSignUpFormWasNotFilledCompletely';
+      }
+      else if ( userInputtedDifferentValuesForUserNameAndConfirmationOfUserName() ) {
+         $informationAboutInvalidUserInputs = 'requiredAction=showThatUserNameIsDifferentFromConfirmationOfUserName';
+      }
+      else if ( userInputtedDifferentValuesForUserPasswordAndConfirmationOfUserPassword() ) {
+         $informationAboutInvalidUserInputs = 
+            'requiredAction=showThatUserPasswordIsDifferentFromConfirmationOfUserPassword';
+      }
+      else if ( userInputtedEmailAddressOrPhoneNumberOfAnotherIfeFacebookUser() ) {
+         $informationAboutInvalidUserInputs = 'requiredAction=showThatUserNameAlreadyExists';
+      }
+      else if ( userInputtedAnInvalidFirstName() || userInputtedAnInvalidSurname() || userInputtedAnInvalidUserName() ) {
+         $informationAboutInvalidUserInputs = 'requiredAction=showThatUserInputtedInvalidSignUpDetails';
+      }
 
-         if ( !isAlpha( $string[$index] ) &&  !isSpecialCharacterAllowedInOrdinaryUserName( $string[$index] ) ) {
+      $informationAboutInvalidUserInputs .= 
+         '&firstName=' . $_POST['firstName'] . '&surname=' . $_POST['surname'] . 
+         '&userName=' . $_POST['userName'] . '&confirmationOfUserName=' . $_POST['confirmationOfUserName'];
+
+      if ( userPasswordOrConfirmationOfUserPasswordHaveNotBeenProvided() ) {
+         $informationAboutInvalidUserInputs .= '&userPasswordOrConfirmationOfUserPasswordHaveNotBeenProvided';
+      }
+
+      return $informationAboutInvalidUserInputs;
+   }
+
+
+   function getIdOfAnyFriendOfLoggedInUserThatLikesThisStatusUpdate( $idOfStatusUpdate )
+   {
+
+      for ( $index = 0; $index < $_SESSION['totalNumberOfFriends']; $index++ ) {
+
+         if ( userLikesStatusUpdate( $_SESSION['idOfFriend' . $index], $idOfStatusUpdate ) ) {
+            return $_SESSION['idOfFriend' . $index];
+         }
+
+      }
+
+      return NULL;
+   }
+
+
+   function getIndexOfLanguage( $idOfLanguage )
+   {
+      $idOfLanguagesSpokenByUser = 
+         retrieveFromDatabaseAndReturnInArrayIdOfAllLanguagesSpoken( $_SESSION['idOfLoggedInUser'] );
+
+      for ( $index = 0; $index < sizeof( $idOfLanguagesSpokenByUser ) && 
+         $idOfLanguage != $idOfLanguagesSpokenByUser[$index]; $index++ )
+         ;
+
+      return $index + 1;
+   }
+
+
+   function getIndexOfPositionWhereLanguageIsStoredInSESSION( $idOfRequiredLanguage )
+   {
+      for ( $index = 0; $index < $_SESSION['totalNumberOfLanguages']; $index++ ) {
+
+         if ( $_SESSION['idOfLanguage' . $index] == $idOfRequiredLanguage ) {
             break;
          }
-
       }
 
-      if ( $index == strlen( $string ) ) {
-         return true;
-      }
-
-      if ( !isAlpha( $string[$index] ) &&  !isSpecialCharacterAllowedInOrdinaryUserName( $string[$index] ) ) {
-         return false;
-      }
-
+      return $index;
    }
-
-
-   function nameOfLanguageIsInvalid( $nameOfLanguage )
-   {
-      return !consistsOfAlphabetsAndSpacesOnly( $nameOfLanguage );
-   }
-
-
-   function consistsOfAlphabetsAndSpacesOnly( $string )
-   {
-      $atLeastOneAlphabetExists = false;
-
-      for ( $index = 0; $index < strlen( $string ); $index++ ) {
-
-         if ( !isAlpha( $string[$index] ) && $string[$index] != ' ' ) {
-            break;
-         }
-
-         if ( isAlpha( $string[$index] ) ) {
-            $atLeastOneAlphabetExists = true;
-         }
-
-      }
-
-      if ( $index == strlen( $string ) ) {
-         return $atLeastOneAlphabetExists;
-      }
-
-      if ( !isAlpha( $string[$index] ) && $string[$index] != ' ' ) {
-         return false;
-      }
-
-   }
-
-
-   function consistsOfAlphabetsOnly( $string )
-   {
-      for ( $index = 0; $index < strlen( $string ); $index++ ) {
-
-         if ( !isAlpha( $string[$index] ) ) {
-            break;
-         }
-
-      }
-
-      if ( $index == strlen( $string ) ) {
-         return true;
-      }
-
-      if ( !isAlpha( $string[$index] ) ) {
-         return false;
-      }
-
-   }
-
-
-   function isAlpha( $char )
-   {
-      $char = strtolower( $char );
-
-      return $char == 'a' || $char == 'b'|| $char == 'c' || $char == 'd' || $char == 'e' || $char == 'f'
-         || $char == 'g' || $char == 'h'|| $char == 'i'|| $char == 'j'|| $char == 'k'|| $char == 'l'
-         || $char == 'm'|| $char == 'n'|| $char == 'o'|| $char == 'p'|| $char == 'q'|| $char == 'r'
-         || $char == 's'|| $char == 't'|| $char == 'u'|| $char == 'v'|| $char == 'w'|| $char == 'x'
-         || $char == 'y'|| $char == 'z';
-   }
-
-
-   function isDigit( $char )
-   {
-      return $char == '0' || $char == '1' || $char == '2' || $char == '3' || $char == '4' || 
-         $char == '5' || $char == '6' || $char == '7' || $char == '8' || $char == '9';
-   }
-
-
-   function isSpecialCharacterAllowedInEmailUserName( $char )
-   {
-      return $char == '.' || $char == '_';
-   }
-
-
-   function isSpecialCharacterAllowedInOrdinaryUserName( $char )
-   {
-      return $char == '\'' || $char == '-';
-   }
-
-
- /*  function printErrorMessageAndTerminateScript( $errorMessage )
-   {
-      session_destroy();
-
-      die( '
-      <html>
-         <head>
-            <title>Error!</title>
-         </head>
-
-         <body>
-            <p>' . $errorMessage . '</p>
-
-            <a href="' . $_SERVER['PHP_SELF'] . '">Go back</a>
-         </body>
-      </html>' );
-   }
-*/
 ?>

@@ -3,17 +3,13 @@
 <?php
    session_start();
 
-   include_once 'includeFiles/functionsForManagingLoginStatus.php';
    include_once 'includeFiles/functionsForCreatingMarkups.php';
-   include_once 'includeFiles/functionsForRetrievingDataFromDatabase.php';
+   include_once 'includeFiles/functionsToBeUsedAsTestConditions.php';
    include_once 'includeFiles/functionsForUpdatingDataInDatabase.php';
-   include_once 'includeFiles/miscellaneousFunctions.php';
+
 
    if ( userIsNotLoggedIn() ) {
-      $markup = getMarkupToTellTheUserToLogIn( $_SERVER['PHP_SELF'] );
-   }
-   else if ( logOutButtonHaveBeenClicked() ) {
-      logTheUserOut();
+      $markup = getMarkupToTellUserToLogIn();
    }
    else {
       $markup = 
@@ -23,56 +19,30 @@
          <h3>Edit Favourite Quotes</h3>
       ';
 
-      if ( userHaveNotClickedOnAnyButton() ) {
-         $markup .= 
-            getMarkupForFormForEditingFavouriteQuoteDetailsWithValuesRetrievedFromDatabaseAsDefault();
+      if ( userHasNotClickedOnAnyButton() ) {
+         $markup .= getMarkupForEditFavouriteQuotesFormAndSetValueRetrievedFromDatabaseAsDefaultValue();
       }
-      else if ( saveButtonHaveBeenClicked() ) {
-         $markup .= validateAndPossiblyUpdateFavouriteQuoteDetails();
+      else if ( userHasClickedOnSaveButton() && userDidNotInputHisFavouriteQuotes() ) {
+         $markup .= getMarkupForEditFavouriteQuotesFormAndAppropriateErrorMessage();
       }
-      else if ( cancelButtonHaveBeenClicked() ) {
+      else if ( userHasClickedOnSaveButton() && userInputtedHisFavouriteQuotes() ) {
+         updateInDatabaseFavouriteQuoteDetails();
+         header( 'Location: aboutMe.php#Favourite Quotes' );
+      }
+      else if ( userHasClickedOnCancelButton() ) {
          header( 'Location: aboutMe.php#Favourite Quotes' );
       }
 
       $markup .= '
       </div> <!-- end div.containerForEditForm -->'; 
    }
-
-
-   function getMarkupForFormForEditingFavouriteQuoteDetailsWithValuesRetrievedFromDatabaseAsDefault()
-   {
-      $rowContainingFavouriteQuoteDetails = 
-         retrieveFromDatabaseFavouriteQuoteDetails( $_SESSION['idOfLoggedInUser'] );
-
-      return getMarkupForFormForEditingFavouriteQuoteDetails( 
-         $rowContainingFavouriteQuoteDetails['favourite_quotes'] );
-   }
-
-
-   function validateAndPossiblyUpdateFavouriteQuoteDetails()
-   {
-
-      if ( userDidNotInputHisFavouriteQuotes() ) {
-         return getMarkupForFormForEditingFavouriteQuoteDetails( INVALID );
-      }
-      else {
-         updateInDatabaseFavouriteQuoteDetails();
-         header( 'Location: aboutMe.php#Favourite Quotes' );
-      }
-
-   }
-
-
-   function userDidNotInputHisFavouriteQuotes() {
-      return $_POST['favouriteQuotes'] == '';
-   }
 ?>
 
 <html>
    <head>
-      <title>Edit Favourite Quotes</title>
+      <title>Edit Favourite Quotes | ife_facebook</title>
       <link href="stylesheets/genericStylesheet.css" type="text/css" rel="stylesheet"/>
-      <link href="stylesheets/stylesheetForLoggedInHeaderAndLoggedInBody.css" type="text/css" rel="stylesheet"/>
+      <link href="stylesheets/stylesheetForLoggedInHeader.css" type="text/css" rel="stylesheet"/>
       <link href="stylesheets/stylesheetForFormForEditingProfileDetails.css" type="text/css" rel="stylesheet"/>
    </head>
 

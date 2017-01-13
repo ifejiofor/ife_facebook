@@ -20,4 +20,12 @@
    define( 'INVALID_USER_NAME', -9 );
    define( 'INVALID_USER_PASSWORD', -10 );
    define( 'INSERTION_SUCCESSFUL', -11 );
+   define( 'UNSUCCESSFUL', -12 );
+   define( 'SUCCESSFUL', -13 );
+   define( 'CURRENT_PASSWORD_IS_INCORRECT', -14 );
+   define( 'PASSWORDS_DO_NOT_MATCH', -15 );
+   define( 'INVALID_PHONE_NUMBER', -16 );
+   define( 'ANOTHER_USER_HAS_THE_SAME_PHONE_NUMBER', -17 );
+   define( 'INVALID_EMAIL_ADDRESS', -18 );
+   define( 'ANOTHER_USER_HAS_THE_SAME_EMAIL_ADDRESS', -19 );
 ?>

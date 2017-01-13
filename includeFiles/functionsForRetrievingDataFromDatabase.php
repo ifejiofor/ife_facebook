@@ -1,30 +1,51 @@
 <?php
-   include_once 'includeFiles/functionsForInteractingWithDatabase.php';
+   include_once 'includeFiles/functionsForAccessingDatabase.php';
    include_once 'includeFiles/miscellaneousFunctions.php';
    include_once 'includeFiles/usefulConstants.php';
+
 
    if ( !isset( $handleOfIfeFacebookDatabase ) ) {
       $handleOfIfeFacebookDatabase = connectToDatabase( 'ife_facebook_database' );
    }
 
 
-   function retrieveFromDatabaseUserIdAndLoginPassword()
+   function retrieveFromDatabaseLoginPasswordAssociatedWithUserName( $userName )
    {
       global $handleOfIfeFacebookDatabase;
 
-      if ( isNotValidEmailAddress( $_POST['userName'] ) && isNotValidPhoneNumber( $_POST['userName'] ) ) {
+      if ( isNotValidEmailAddress( $userName ) && isNotValidPhoneNumber( $userName ) ) {
          return NULL;
       }
 
-      if ( isValidPhoneNumber( $_POST['userName'] ) ) {
-         $userName = convertToPhoneNumberWithCountryCode( $_POST['userName'] );
-      }
-      else {
-         $userName = $_POST['userName'];
+      if ( isValidPhoneNumber( $userName ) ) {
+         $userName = convertToPhoneNumberWithCountryCode( $userName );
       }
 
       $query = 
-         'SELECT user_id, login_password FROM user_information
+         'SELECT login_password FROM user_information
+            WHERE email_address = "'  .  $userName  .  '"
+            OR phone_number = "'  .  $userName  .  '"';
+
+      $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+      $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
+      return $rowFromResultOfQuery;
+   }
+
+
+   function retrieveFromDatabaseUserIdAssociatedWithUserName( $userName )
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      if ( isNotValidEmailAddress( $userName ) && isNotValidPhoneNumber( $userName ) ) {
+         return NULL;
+      }
+
+      if ( isValidPhoneNumber( $userName ) ) {
+         $userName = convertToPhoneNumberWithCountryCode( $userName );
+      }
+
+      $query = 
+         'SELECT user_id FROM user_information
             WHERE email_address = "'  .  $userName  .  '"
             OR phone_number = "'  .  $userName  .  '"';
 
@@ -42,21 +63,9 @@
       $query = createQueryForRetrievingIdOfStatusUpdates( $offset, $numberOfRows );
 
       $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
-      $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
-
-      if ( $rowFromResultOfQuery == false ) {
-         return NULL;
-      }
-      else {
-
-         while ( $rowFromResultOfQuery != false ) {
-            $idOfRelevantStatusUpdates[] = $rowFromResultOfQuery['status_update_id'];
-            $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
-         }
-
-         return $idOfRelevantStatusUpdates;
-      }
-
+      $arrayContainingResultOfQuery = getArrayContainingResultOfQuery( $resultOfQuery, 'status_update_id' );
+      
+      return  $arrayContainingResultOfQuery;
    }
 
 
@@ -113,20 +122,9 @@
             LIMIT ' . (integer)$offset . ', ' . (integer)$numberOfRows;
 
       $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
-      $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
-
-      if ( $rowFromResultOfQuery == false ) {
-         return NULL;
-      }
-      else {
-
-         while ( $rowFromResultOfQuery != false ) {
-            $idOfAssociatedComments[] = $rowFromResultOfQuery['comment_id'];
-            $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
-         }
-
-         return $idOfAssociatedComments;
-      }
+      $arrayContainingResultOfQuery = getArrayContainingResultOfQuery( $resultOfQuery, 'comment_id' );
+      
+      return  $arrayContainingResultOfQuery;
 
    }
 
@@ -170,6 +168,7 @@
    }
 
 
+
    function retrieveFromDatabaseBirthdayDetails( $idOfUser )
    {
       global $handleOfIfeFacebookDatabase;
@@ -194,6 +193,36 @@
 
       $query = '
          SELECT about_me FROM user_information
+            WHERE user_id = '  .  (integer)$idOfUser;
+
+      $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+      $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
+
+      return $rowFromResultOfQuery;
+   }
+
+
+   function retrieveFromDatabasePhoneNumberDetails( $idOfUser )
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      $query = '
+         SELECT phone_number FROM user_information
+            WHERE user_id = '  .  (integer)$idOfUser;
+
+      $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+      $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
+
+      return $rowFromResultOfQuery;
+   }
+
+
+   function retrieveFromDatabaseEmailAddressDetails( $idOfUser )
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      $query = '
+         SELECT email_address FROM user_information
             WHERE user_id = '  .  (integer)$idOfUser;
 
       $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
@@ -302,21 +331,9 @@
             WHERE id_of_user = '  .  (integer)$idOfUser;
 
       $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
-      $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
-
-      if ( $rowFromResultOfQuery == false ) {
-         return NULL;
-      }
-      else {
-
-         while ( $rowFromResultOfQuery != false ) {
-            $idOfLanguages[] = $rowFromResultOfQuery['id_of_language'];
-            $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
-         }
-
-         return $idOfLanguages;
-      }
-
+      $arrayContainingResultOfQuery = getArrayContainingResultOfQuery( $resultOfQuery, 'id_of_language' );
+      
+      return  $arrayContainingResultOfQuery;
    }
 
 
@@ -348,21 +365,9 @@
             ORDER BY name_of_language ASC';
 
       $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
-      $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
-
-      if ( $rowFromResultOfQuery == false ) {
-         return NULL;
-      }
-      else {
-
-         while ( $rowFromResultOfQuery != false ) {
-            $idOfLanguages[] = $rowFromResultOfQuery['language_id'];
-            $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
-         }
-
-         return $idOfLanguages;
-      }
-
+      $arrayContainingResultOfQuery = getArrayContainingResultOfQuery( $resultOfQuery, 'language_id' );
+      
+      return  $arrayContainingResultOfQuery;
    }
 
 
@@ -375,21 +380,9 @@
             ORDER BY name_of_language ASC';
 
       $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
-      $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
-
-      if ( $rowFromResultOfQuery == false ) {
-         return NULL;
-      }
-      else {
-
-         while ( $rowFromResultOfQuery != false ) {
-            $namesOfLanguages[] = $rowFromResultOfQuery['name_of_language'];
-            $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
-         }
-
-         return $namesOfLanguages;
-      }
-
+      $arrayContainingResultOfQuery = getArrayContainingResultOfQuery( $resultOfQuery, 'name_of_language' );
+      
+      return  $arrayContainingResultOfQuery;
    }
 
 
@@ -402,20 +395,9 @@
             WHERE id_of_second_user = '  . (integer)$idOfUser;
 
       $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
-      $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
-
-      if ( $rowFromResultOfQuery == false ) {
-         return NULL;
-      }
-      else {
-
-         while ( $rowFromResultOfQuery != false ) {
-            $idOfFirstSetOfFriends[] = $rowFromResultOfQuery['id_of_first_user'];
-            $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
-         }
-
-         return $idOfFirstSetOfFriends;
-      }
+      $arrayContainingResultOfQuery = getArrayContainingResultOfQuery( $resultOfQuery, 'id_of_first_user' );
+      
+      return  $arrayContainingResultOfQuery;
    }
 
 
@@ -428,21 +410,9 @@
             WHERE id_of_first_user = '  . (integer)$idOfUser;
 
       $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
-      $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
-
-      if ( $rowFromResultOfQuery == false ) {
-         return NULL;
-      }
-      else {
-
-         while ( $rowFromResultOfQuery != false ) {
-            $idOfSecondSetOfFriends[] = $rowFromResultOfQuery['id_of_second_user'];
-            $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
-         }
-
-         return $idOfSecondSetOfFriends;
-      }
-
+      $arrayContainingResultOfQuery = getArrayContainingResultOfQuery( $resultOfQuery, 'id_of_second_user' );
+      
+      return  $arrayContainingResultOfQuery;
    }
 
 
@@ -457,21 +427,9 @@
             LIMIT ' . (integer)$offset . ', ' . (integer)$numberOfRows;
 
       $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
-      $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
-
-      if ( $rowFromResultOfQuery == false ) {
-         return NULL;
-      }
-      else {
-
-         while ( $rowFromResultOfQuery != false ) {
-            $idOfAssociatedLikers[] = $rowFromResultOfQuery['id_of_user'];
-            $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
-         }
-
-         return $idOfAssociatedLikers;
-      }
-
+      $arrayContainingResultOfQuery = getArrayContainingResultOfQuery( $resultOfQuery, 'id_of_user' );
+      
+      return  $arrayContainingResultOfQuery;
    }
 
 
@@ -491,7 +449,7 @@
    }
 
 
-   function retrieveFromDatabaseUserIdBasedOnEmailAddressOrPhoneNumber( $userName )
+   function retrieveFromDatabaseUserIdAssociatedWithEmailAddressOrPhoneNumber( $userName )
    {
       global $handleOfIfeFacebookDatabase;
 
@@ -503,10 +461,124 @@
          $userName = convertToPhoneNumberWithCountryCode( $userName );
       }
 
-      $query = 
-         'SELECT user_id, login_password FROM user_information
+      $query = '
+         SELECT user_id FROM user_information
             WHERE email_address = "'  .  $userName  .  '"
             OR phone_number = "'  .  $userName  .  '"';
+
+      $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+      $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
+
+      return $rowFromResultOfQuery;
+   }
+
+
+   function retrieveFromDatabaseUserIdOfAnotherUserAssociatedWithEmailAddress( $emailAddress )
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      if ( isNotValidEmailAddress( $emailAddress ) ) {
+         return NULL;
+      }
+
+      $query = '
+         SELECT user_id FROM user_information
+            WHERE email_address = "'  .  $emailAddress  .  '"
+            AND user_id != '  .  (integer)$_SESSION['idOfLoggedInUser'];
+
+      $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+      $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
+
+      return $rowFromResultOfQuery;
+   }
+
+
+   function retrieveFromDatabaseUserIdOfAnotherUserAssociatedWithPhoneNumber( $phoneNumber )
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      if ( isNotValidPhoneNumber( $phoneNumber ) ) {
+         return NULL;
+      }
+
+      $phoneNumber = convertToPhoneNumberWithCountryCode( $phoneNumber );
+
+      $query = '
+         SELECT user_id FROM user_information
+            WHERE phone_number = "'  .  $phoneNumber  .  '"
+            AND user_id != '  .  (integer)$_SESSION['idOfLoggedInUser'];
+
+      $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+      $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
+
+      return $rowFromResultOfQuery;
+   }
+
+
+   function retrieveFromDatabasePasswordOfLoggedInUser()
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      $query = '
+         SELECT login_password FROM user_information
+            WHERE user_id = ' . (integer)$_SESSION['idOfLoggedInUser'];
+
+      $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+      $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
+
+      return $rowFromResultOfQuery;
+   }
+
+
+   function retrieveFromDatabaseIdOfLanguageAssociatedWithNameOfLanguage( $nameOfLanguage )
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      if ( !consistsOfAlphabetsAndSpacesOnly( $nameOfLanguage ) ) {
+         return NULL;
+      }
+
+      $query = '
+         SELECT language_id FROM languages
+            WHERE name_of_language = "' . strtolower( $nameOfLanguage ) . '"';
+
+      $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+      $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
+
+      return $rowFromResultOfQuery;
+   }
+
+
+   function retrieveFromDatabaseCityIdAssociatedWithNameOfCityAndNameOfCountry( $nameOfCity, $nameOfCountry )
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      $safeNameOfCity = mysql_real_escape_string( $nameOfCity );
+      $safeNameOfCountry = mysql_real_escape_string( $nameOfCountry );
+
+      $query = '
+         SELECT city_id FROM cities
+            WHERE name_of_city = "'  .  strtolower( $safeNameOfCity )  . '"
+            AND name_of_country = "' . strtolower( $safeNameOfCountry )  . '"';
+
+      $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+      $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
+
+      return $rowFromResultOfQuery;
+   }
+
+
+   function retrieveFromDatabaseGenderIdAssociatedWithNameOfGender( $nameOfGender )
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      if ( doesNotConsistOfAlphabetsOnly( $nameOfGender ) ) {
+         return NULL;
+      }
+
+      $query = '
+         SELECT gender_id FROM genders
+            WHERE name_of_gender = "' . $nameOfGender . '"';
 
       $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
       $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );

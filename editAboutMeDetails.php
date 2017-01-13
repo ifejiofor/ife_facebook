@@ -3,17 +3,13 @@
 <?php
    session_start();
 
-   include_once 'includeFiles/functionsForManagingLoginStatus.php';
    include_once 'includeFiles/functionsForCreatingMarkups.php';
-   include_once 'includeFiles/functionsForRetrievingDataFromDatabase.php';
+   include_once 'includeFiles/functionsToBeUsedAsTestConditions.php';
    include_once 'includeFiles/functionsForUpdatingDataInDatabase.php';
-   include_once 'includeFiles/miscellaneousFunctions.php';
+
 
    if ( userIsNotLoggedIn() ) {
-      $markup = getMarkupToTellTheUserToLogIn( $_SERVER['PHP_SELF'] );
-   }
-   else if ( logOutButtonHaveBeenClicked() ) {
-      logTheUserOut();
+      $markup = getMarkupToTellUserToLogIn();
    }
    else {
       $markup = 
@@ -24,13 +20,17 @@
          <h3>Edit About Me Details</h3>
       ';
 
-      if ( userHaveNotClickedOnAnyButton() ) {
-         $markup .= getMarkupForFormForEditingAboutMeDetailsWithValuesRetrievedFromDatabaseAsDefault();
+      if ( userHasNotClickedOnAnyButton() ) {
+         $markup .= getMarkupForEditAboutMeDetailsFormAndSetValueRetrievedFromDatabaseAsDefaultValue();
       }
-      else if ( saveButtonHaveBeenClicked() ) {
-         $markup .= validateAndPossiblyUpdateAboutMeDetails();
+      else if ( userHasClickedOnSaveButton() && userDidNotInputValidAboutMeDetails() ) {
+         $markup .= getMarkupForEditAboutMeDetailsFormAndAppropriateErrorMessage();
       }
-      else if ( cancelButtonHaveBeenClicked() ) {
+      else if ( userHasClickedOnSaveButton() && userInputtedValidAboutMeDetails() ) {
+         updateInDatabaseAboutMeDetails();
+         header( 'Location: aboutMe.php#About Me' );
+      }
+      else if ( userHasClickedOnCancelButton() ) {
          header( 'Location: aboutMe.php#About Me' );
       }
 
@@ -38,40 +38,13 @@
       </div> <!-- end div.containerForEditForm -->
       ';
    }
-
-
-   function getMarkupForFormForEditingAboutMeDetailsWithValuesRetrievedFromDatabaseAsDefault()
-   {
-      $rowContainingAboutMeDetails = retrieveFromDatabaseAboutMeDetails( $_SESSION['idOfLoggedInUser'] );
-
-      return getMarkupForFormForEditingAboutMeDetails( $rowContainingAboutMeDetails['about_me'] );
-   }
-
-
-   function validateAndPossiblyUpdateAboutMeDetails()
-   {
-
-      if ( userDidNotInputHisAboutMeDetails() ) {
-         return getMarkupForFormForEditingAboutMeDetails( INVALID );
-      }
-      else {
-         updateInDatabaseAboutMeDetails();
-         header( 'Location: aboutMe.php#About Me' );
-      }
-
-   }
-
-
-   function userDidNotInputHisAboutMeDetails() {
-      return $_POST['aboutMe'] == '';
-   }
 ?>
 
 <html>
    <head>
-      <title>Edit About Me</title>
+      <title>Edit About Me | ife_facebook</title>
       <link href="stylesheets/genericStylesheet.css" type="text/css" rel="stylesheet"/>
-      <link href="stylesheets/stylesheetForLoggedInHeaderAndLoggedInBody.css" type="text/css" rel="stylesheet"/>
+      <link href="stylesheets/stylesheetForLoggedInHeader.css" type="text/css" rel="stylesheet"/>
       <link href="stylesheets/stylesheetForFormForEditingProfileDetails.css" type="text/css" rel="stylesheet"/>
    </head>
 
