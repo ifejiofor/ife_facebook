@@ -1,21 +1,32 @@
 <!DOCTYPE html>
 <?php
-   include_once 'includeFiles/functionsForCreatingMarkups.php';
+   session_start();
 
-   $markup = getMarkupForSignUpForm();
+   include_once 'includeFiles/functionsForCreatingMarkups.php';
+   include_once 'includeFiles/booleanFunctions.php';
+
+   if ( userIsLoggedIn() ) {
+      header( 'Location: index.php' );
+   }
+   else {
+      $markup = '<div class="mainBody whiteContainerWithBorder">
+            <h1 class="blueText centralizedText smallBottomMargin">Sign Up to <a href="index.php">ife_facebook</a></h1>
+            ' .
+            getMarkupForSignUpForm() . '
+      </div>';
+   }
 ?>
 
 <html>
    <head>
-      <title>Sign Up | ife_facebook </title>
-      <link href="stylesheets/stylesheetForSignUpPage.css" type="text/css" rel="stylesheet"/>
+      <title>Sign Up | ife_facebook</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+      <link href="stylesheets/ife_facebookStylesheet.css" type="text/css" rel="stylesheet"/>
    </head>
 
    <body>
-      <h1 class="mainHeader">Sign Up to <a href="index.php" class="linkInMainHeader">ife_facebook</a></h1>
-
       <?php
-         echo $markup
+         echo $markup;
       ?>
 
    </body>

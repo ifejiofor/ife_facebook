@@ -3,7 +3,7 @@
 <?php
    session_start();
 
-   include_once 'includeFiles/functionsToBeUsedAsTestConditions.php';
+   include_once 'includeFiles/booleanFunctions.php';
    include_once 'includeFiles/functionsForCreatingMarkups.php';
 
 
@@ -12,24 +12,21 @@
    }
    else {
       $markup =
-         getMarkupForHeader() . '
-
-      <section class="mainSectionOfProfilePage">' .
-         getMarkupForTopOfProfilePage( 'editAccountInformation.php' ) . '
-         <p><a href="editUserNames.php">Edit your firstname, surname, or nickname.</a></p>
-         <p><a href="editPassword.php">Change your password.</a></p>
-         <p><a href="deactivateAccount.php">Deactivate your ife_facebook account.</a></p>
-      </section>  <!-- end section.mainSectionOfProfilePage -->
-      ';
+      getMarkupForHeader() .
+         getMarkupForTheOpeningTagOfMainBodyDiv() .
+         getMarkupForTopOfProfilePageOfLoggedInUser( 'editAccountInformation.php' ) . '
+         <p class="whiteContainerWithBorder bigTopPadding bigBottomPadding smallTopMargin"><a href="editUserNames.php">Edit your firstname, surname, or nickname.</a></p>
+         <p class="whiteContainerWithBorder bigTopPadding bigBottomPadding smallTopMargin"><a href="editPassword.php">Change your password.</a></p>
+         <p class="whiteContainerWithBorder bigTopPadding bigBottomPadding smallTopMargin"><a href="deactivateAccount.php">Deactivate your ife_facebook account.</a></p>' .
+      getMarkupForClosingDivTag();
    }
 ?>
 
 <html>
    <head>
       <title>Manage Account | ife_facebook</title>
-      <link href="stylesheets/genericStylesheet.css" type="text/css" rel="stylesheet" />
-      <link href="stylesheets/stylesheetForLoggedInHeader.css" type="text/css" rel="stylesheet" />
-      <link href="stylesheets/stylesheetForTopOfProfilePage.css" type="text/css" rel="stylesheet" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link href="stylesheets/ife_facebookStylesheet.css" type="text/css" rel="stylesheet" />
    </head>
 
    <body>

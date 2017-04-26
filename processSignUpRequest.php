@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <?php
-   include_once 'includeFiles/functionsToBeUsedAsTestConditions.php';
+   include_once 'includeFiles/booleanFunctions.php';
    include_once 'includeFiles/miscellaneousFunctions.php';
    include_once 'includeFiles/functionsForInsertingDataIntoDatabase.php';
    include_once 'includeFiles/functionsForCreatingMarkups.php';
@@ -22,7 +22,8 @@
 <html>
    <head>
       <title>Signed Up Successfully | ife_facebook</title>
-      <link href="stylesheets/stylesheetForProcessSignUpRequestPage.css" type="text/css" rel="stylesheet" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+      <link href="stylesheets/ife_facebookStylesheet.css" type="text/css" rel="stylesheet" />
    </head>
 
    <body>

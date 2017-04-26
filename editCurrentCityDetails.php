@@ -4,8 +4,10 @@
    session_start();
 
    include_once 'includeFiles/functionsForCreatingMarkups.php';
-   include_once 'includeFiles/functionsToBeUsedAsTestConditions.php';
+   include_once 'includeFiles/booleanFunctions.php';
+   include_once 'includeFiles/functionsForRetrievingDataFromDatabase.php';
    include_once 'includeFiles/functionsForUpdatingDataInDatabase.php';
+   include_once 'includeFiles/functionsForDeletingDataFromDatabase.php';
 
 
    if ( userIsNotLoggedIn() ) {
@@ -14,11 +16,10 @@
    else {
       $markup = 
          getMarkupForHeader() . '
-      <div class="containerForEditForm">
-         <h2>Edit Profile</h2>
-         <h3>Edit Current City Details</h3>
+      <div class="mainBody whiteContainerWithBorder">
+         <h1 class="bigSizedText blueText smallBottomMargin">Edit Current City Details</h1>
          
-         <p class="instructionForEditForm">
+         <p class="darkGreyText">
             Enter the name of your current city, and the name of the country
             where your current city is located. Then click the "Save" button.
          </p> 
@@ -31,7 +32,9 @@
          $markup .= getMarkupForEditCityDetailsFormAndAppropriateErrorMessages();
       }
       else if ( userHasClickedOnSaveButton() && userInputtedValidCityDetails() ) {
-         updateInDatabaseCurrentCityDetails();
+         $formerCurrentCity = retrieveFromDatabaseIdOfCurrentCity( $_SESSION['idOfLoggedInUser'] );
+         updateInDatabaseCurrentCityDetailsOfLoggedInUser( $_POST['nameOfCity'], $_POST['nameOfCountry'] );
+         deleteFromDatabaseCityEntryIfNoUserIsAssociatedWithTheCity( $formerCurrentCity['id_of_current_city'] );
          header( 'Location: aboutMe.php#Current City' );
       }
       else if ( userHasClickedOnCancelButton() ) {
@@ -39,8 +42,7 @@
       }
 
       $markup .= '
-      </div> <!-- end div.containerForEditForm -->
-      ';
+      </div>';
    }
 ?>
 
@@ -48,9 +50,8 @@
 <html>
    <head>
       <title>Edit Current City | ife_facebook</title>
-      <link href="stylesheets/genericStylesheet.css" type="text/css" rel="stylesheet"/>
-      <link href="stylesheets/stylesheetForLoggedInHeader.css" type="text/css" rel="stylesheet"/>
-      <link href="stylesheets/stylesheetForFormForEditingProfileDetails.css" type="text/css" rel="stylesheet"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+      <link href="stylesheets/ife_facebookStylesheet.css" type="text/css" rel="stylesheet"/>
    </head>
 
    <body>

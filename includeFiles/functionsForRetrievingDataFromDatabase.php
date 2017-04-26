@@ -1,5 +1,6 @@
 <?php
-   include_once 'includeFiles/functionsForAccessingDatabase.php';
+   include_once 'includeFiles/functionsForInteractingWithDatabaseAtLowLevel.php';
+   include_once 'includeFiles/booleanFunctions.php';
    include_once 'includeFiles/miscellaneousFunctions.php';
    include_once 'includeFiles/usefulConstants.php';
 
@@ -56,20 +57,21 @@
    }
 
 
-   function retrieveFromDatabaseAndReturnInArrayIdOfStatusUpdates( $offset, $numberOfRows )
+   function retrieveFromDatabaseAndReturnInArrayIdOfSomeStatusUpdatesThatWerePostedByLoggedInUserOrHisFriends( 
+      $offset, $numberOfRows )
    {
       global $handleOfIfeFacebookDatabase;
 
-      $query = createQueryForRetrievingIdOfStatusUpdates( $offset, $numberOfRows );
+      $query = createQueryForRetrievingIdOfStatusUpdatesThatWerePostedByLoggedInUserOrHisFriends( $offset, $numberOfRows );
 
       $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
       $arrayContainingResultOfQuery = getArrayContainingResultOfQuery( $resultOfQuery, 'status_update_id' );
-      
-      return  $arrayContainingResultOfQuery;
+
+      return $arrayContainingResultOfQuery;
    }
 
 
-   function createQueryForRetrievingIdOfStatusUpdates( $offset, $numberOfRows )
+   function createQueryForRetrievingIdOfStatusUpdatesThatWerePostedByLoggedInUserOrHisFriends( $offset, $numberOfRows )
    {
       $query = '
          SELECT status_update_id FROM status_updates
@@ -84,6 +86,39 @@
          LIMIT ' . (integer)$offset . ', ' . (integer)$numberOfRows;
 
       return $query;
+   }
+
+
+   function retrieveFromDatabaseAndReturnInArrayIdOfSomeStatusUpdatesThatWerePostedByUser(
+      $idOfUser, $offset, $numberOfRows )
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      $query = '
+         SELECT status_update_id FROM status_updates
+            WHERE id_of_poster = ' . (integer)$idOfUser . '
+            ORDER BY time_of_posting DESC
+            LIMIT ' . (integer)$offset . ', ' . (integer)$numberOfRows;
+
+      $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+      $arrayContainingResultOfQuery = getArrayContainingResultOfQuery( $resultOfQuery, 'status_update_id' );
+
+      return $arrayContainingResultOfQuery;
+   }
+
+
+   function retrieveFromDatabaseAndReturnInArrayIdOfAllStatusUpdatesThatWerePostedByUser( $idOfUser )
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      $query = '
+         SELECT status_update_id FROM status_updates
+            WHERE id_of_poster = ' . (integer)$idOfUser;
+
+      $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+      $arrayContainingResultOfQuery = getArrayContainingResultOfQuery( $resultOfQuery, 'status_update_id' );
+
+      return $arrayContainingResultOfQuery;
    }
 
 
@@ -386,6 +421,21 @@
    }
 
 
+   function retrieveFromDatabaseNameOfLanguage( $idOfRequiredLanguage )
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      $query = '
+         SELECT name_of_language FROM languages
+            WHERE language_id = ' . $idOfRequiredLanguage;
+
+      $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+      $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
+
+      return $rowFromResultOfQuery;
+   }
+
+
    function retrieveFromDatabaseAndReturnInArrayIdOfFirstSetOfFriends( $idOfUser )
    {
       global $handleOfIfeFacebookDatabase;
@@ -446,6 +496,21 @@
       $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
 
       return $rowFromResultOfQuery;
+   }
+
+
+   function retrieveFromDatabaseAndReturnInArrayIdOfAllStatusUpdatesWhichLoggedInUserLikes()
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      $query = '
+         SELECT id_of_status_update FROM likes
+            WHERE id_of_user = ' . (integer)$_SESSION['idOfLoggedInUser'];
+
+      $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+      $arrayContainingResultOfQuery = getArrayContainingResultOfQuery( $resultOfQuery, 'id_of_status_update' );
+      
+      return  $arrayContainingResultOfQuery;
    }
 
 
@@ -584,5 +649,190 @@
       $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
 
       return $rowFromResultOfQuery;
+   }
+
+
+   function retrieveFromDatabaseEntryThatIndicatesThatUsersAreFriendsOfEachOther( $idOfFirstUser, $idOfSecondUser )
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      $query = '
+         SELECT id_of_first_user, id_of_second_user FROM friend_relationships
+            WHERE ( id_of_first_user = ' . (integer)$idOfFirstUser . ' AND id_of_second_user = ' . (integer)$idOfSecondUser . ')
+            OR ( id_of_first_user = ' . (integer)$idOfSecondUser . ' AND id_of_second_user = ' . (integer)$idOfFirstUser . ')';
+
+      $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+      $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
+
+      return $rowFromResultOfQuery;
+   }
+
+
+   function rerieveFromDatabaseAndReturnInArrayIdOfUsersWhoseNamesMatchSearchQuery( 
+      $searchQuery, $offset, $numberOfRows )
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      $sqlQuery = '
+         SELECT user_id FROM user_information
+            WHERE 0';
+
+      $token = strtok( $searchQuery, ' ' );
+      while ( $token != false ) {
+         $token = strtolower( $token );
+
+         $sqlQuery .= '
+            OR first_name LIKE "%' . $token . '%"
+            OR last_name LIKE "%' . $token . '%"
+            OR nick_name LIKE "%' . $token . '%"';
+
+         $token = strtok( ' ' );
+      }
+
+      $sqlQuery .= ' LIMIT ' . $offset . ', ' . $numberOfRows;
+
+      $resultOfQuery = sendQueryToDatabaseAndGetResult( $sqlQuery, $handleOfIfeFacebookDatabase );
+      return getArrayContainingResultOfQuery( $resultOfQuery, 'user_id' );
+   }
+
+
+   function retrieveFromDatabaseAndReturnInArrayIdOfAllUsersWhoseFriendRequestsHaveNotBeenAcceptedByLoggedInUser()
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      $query = '
+         SELECT id_of_sender FROM friend_requests
+            WHERE id_of_reciever = ' . $_SESSION['idOfLoggedInUser'];
+
+      $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+      return getArrayContainingResultOfQuery( $resultOfQuery, 'id_of_sender' );
+   }
+
+
+   function retrieveFromDatabaseEntryThatIndicatesThatFriendRequestSentByLoggedInUserHasNotYetBeenAcceptedByRequiredUser(
+      $idOfRequiredUser )
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      $query = '
+         SELECT id_of_sender, id_of_reciever FROM friend_requests
+            WHERE id_of_sender = ' . $_SESSION['idOfLoggedInUser'] . '
+            AND id_of_reciever = ' . $idOfRequiredUser;
+
+      $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+      $rowContainingResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
+      return $rowContainingResultOfQuery;
+   }
+
+
+   function retrieveFromDatabaseEntryThatIndicatesThatLoggedInUserHasNotYetAcceptedFriendRequestByRequiredUser( 
+      $idOfRequiredUser )
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      $query = '
+         SELECT id_of_sender, id_of_reciever FROM friend_requests
+            WHERE id_of_sender = ' . $idOfRequiredUser . '
+            AND id_of_reciever = ' . $_SESSION['idOfLoggedInUser'];
+
+      $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+      return mysql_fetch_assoc( $resultOfQuery );
+   }
+
+
+   function retrieveFromDatabaseAndReturnInArrayIdOfAllNotificationsThatAreMeantForLoggedInUserButHaveNotBeenRead()
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      $query = '
+         SELECT notification_id FROM notifications
+            WHERE id_of_user_whom_notification_is_meant_for = ' . $_SESSION['idOfLoggedInUser'] . '
+            AND notification_state = "not_read"
+            ORDER BY time_of_creating_notification DESC';
+
+      $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+      $arrayContainingResultOfQuery = getArrayContainingResultOfQuery( $resultOfQuery, 'notification_id' );
+      
+      return  $arrayContainingResultOfQuery;
+   }
+
+
+   function retrieveFromDatabaseAndReturnInArrayIdOfAllNotificationsThatAreMeantForLoggedInUser()
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      $query = '
+         SELECT notification_id FROM notifications
+            WHERE id_of_user_whom_notification_is_meant_for = ' . $_SESSION['idOfLoggedInUser'] . '
+            ORDER BY time_of_creating_notification DESC';
+
+      $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+      $arrayContainingResultOfQuery = getArrayContainingResultOfQuery( $resultOfQuery, 'notification_id' );
+      
+      return  $arrayContainingResultOfQuery;
+   }
+
+
+   function retrieveFromDatabaseDetailsAboutNotification( $idOfNotification )
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      $query = '
+         SELECT notification_text, 
+            notification_state,
+            MONTHNAME( time_of_creating_notification ) AS month,
+            DAY( time_of_creating_notification ) AS day,
+            HOUR( time_of_creating_notification ) AS hour,
+            MINUTE( time_of_creating_notification ) AS minute
+            FROM notifications
+            WHERE notification_id = ' . $idOfNotification;
+
+      $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+      return mysql_fetch_assoc( $resultOfQuery );
+   }
+
+
+   function retrieveFromDatabaseAndReturnInArrayIdOfUsersAssociatedWithHometown( $idOfHometown )
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      $query = '
+         SELECT user_id FROM user_information
+            WHERE id_of_hometown = ' . (integer)$idOfHometown;
+
+      $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+      $arrayContainingResultOfQuery = getArrayContainingResultOfQuery( $resultOfQuery, 'user_id' );
+      
+      return  $arrayContainingResultOfQuery;
+   }
+
+
+   function retrieveFromDatabaseAndReturnInArrayIdOfUsersAssociatedWithCurrentCity( $idOfCurrentCity )
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      $query = '
+         SELECT user_id FROM user_information
+            WHERE id_of_current_city = ' . (integer)$idOfCurrentCity;
+
+      $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+      $arrayContainingResultOfQuery = getArrayContainingResultOfQuery( $resultOfQuery, 'user_id' );
+      
+      return  $arrayContainingResultOfQuery;
+   }
+
+
+   function retrieveFromDatabaseAndReturnInArrayIdOfUsersAssociatedWithLanguage( $idOfLanguage )
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      $query = '
+         SELECT id_of_user FROM user_and_language
+            WHERE id_of_language = ' . (integer)$idOfLanguage;
+
+      $resultOfQuery = sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+      $arrayContainingResultOfQuery = getArrayContainingResultOfQuery( $resultOfQuery, 'id_of_user' );
+      
+      return  $arrayContainingResultOfQuery;
    }
 ?>

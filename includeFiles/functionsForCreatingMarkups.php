@@ -1,78 +1,89 @@
 <?php
    include_once 'includeFiles/functionsForRetrievingDataFromDatabase.php';
    include_once 'includeFiles/functionsForStoringDataIntoSESSION.php';
-   include_once 'includeFiles/functionsToBeUsedAsTestConditions.php';
+   include_once 'includeFiles/booleanFunctions.php';
    include_once 'includeFiles/miscellaneousFunctions.php';
    include_once 'includeFiles/usefulConstants.php';
 
 
    function getMarkupForHeader()
    {
-      return '
-      <header class="loggedInHeader">
-         <a href="index.php" class="linkContainingLoggedInLogo"><h1 class="loggedInLogo">f</h1></a>
+      $notifications = 
+         retrieveFromDatabaseAndReturnInArrayIdOfAllNotificationsThatAreMeantForLoggedInUserButHaveNotBeenRead();
+      $numberOfNotifications = sizeof( $notifications );
 
-         <form class="searchBar">
-            <input type="text" name="searchQuery" placeholder="Search ife_facebook" 
-               class="inputFieldForSearchBar" />
-            <input type="submit" value="Search" class="searchButton" />
+
+      return '<header class="mainHeader fixedOnLargeScreens">
+         <a href="index.php" class="floatedToLeft"><h1 class="ifeFacebookShortLogo">f</h1></a>
+
+         <form class="floatedToLeft halfWidth">
+            <input type="text" name="searchQuery" placeholder="Search ife_facebook" class="threeQuartersWidth" />
+            <input type="submit" value="Search" class="blueButton" />
          </form>
 
-         <nav class="importantLinks">
+         <nav class="floatedToLeft whiteHorizontalNavigationLinksWithoutBorders">
             <ul>
-               <li><a href="myProfile.php" class="importantLink">' . $_SESSION['firstName'] . '</a></li>
-               <li><a href="index.php" class="importantLink">Home</a></li>
-               <li><a href="findFriends.php" class="importantLink">Find Friends</a></li>
-               <li><a href="messages.php" class="importantLink">Messages</a></li>
-               <li><a href="notifications.php" class="importantLink">Notification</a></li>
+               <li><a href="myProfile.php">' . $_SESSION['firstName'] . '</a></li>
+               <li><a href="index.php">Home</a></li>
+               <li><a href="findFriends.php">Find Friends</a></li>
+               <li><a href="notifications.php">Notifications' . ( $numberOfNotifications == 0 ? '' : '<span class="redBadge">' . $numberOfNotifications . '</span>' ) . '</a></li>
             </ul>
          </nav>
 
-         <!-- log out button -->
-         <form method="POST" action="processLogoutRequest.php">
-            <input type="submit" value="Log Out" name="logOutButton" class="logOutButton" />
+         <form method="POST" action="processLogoutRequest.php" class="floatedToLeft">
+            <input type="submit" value="Log Out" name="logOutButton" class="blueButton" />
          </form>
       </header>
-
-      <pre class="spaceBelowLoggedInHeader">
-      </pre>
       ';
+   }
+
+
+   function getMarkupForTheOpeningTagOfMainBodyDiv()
+   {
+      return '
+      <div class="mainBody">';
+   }
+
+
+   function getMarkupForClosingDivTag()
+   {
+      return '
+      </div>';
    }
 
 
    function getMarkupForLoggedOutVersionOfIfeFacebookHomepage()
    {
-      return '
-      <header class="homepageHeader">
-         <a href="index.php"><h1 class="homepageLogo">ife_facebook</h1></a>' .
-         getMarkupForLoginFormWithoutDefaultValues() . '
-      </header>
+      return '<div class="disappearsOnSmallScreens">
+         <header class="mainHeader">
+            <a href="index.php" class="floatedToLeft"><h1 class="ifeFacebookLongLogo">ife_facebook</h1></a>' .
+            getMarkupForLoginFormThatDispaysOnSingleLine() . '
+         </header>
 
-      <div class="homepageBody">
-         <div class="shortDescription" >
-            <img src="images/connectWithPeople.jpg" width="200px" height="200px"
-               class="shortDescriptionImage" alt="connect with people that matter to you"/>
-
-            <h2 class="shortDescriptionText">
-               ife_facebook is an online community where you can connect 
-               with those that matter to you
-            </h2>
+         <div class="thirtyPercentWidth massiveTopMargin massiveLeftMargin floatedToLeft" >
+            <img src="images/connectWithPeople.jpg" width="200px" height="200px" class="shortDescriptionImage" alt="connect with people that matter to you"/>
+            <p class="bigSizedText">ife_facebook is an online community where you can connect with those that matter to you</p>
          </div>
 
-         <div class="signUpFormContainer" >
-            <h2>Sign Up</h2>
-            <p>It\'s free and always will be.</p>
+         <div class="thirtyPercentWidth massiveTopMargin massiveRightMargin floatedToRight">
+            <h1 class="transparentContainerWithoutBorder">Sign Up</h1>
+            <p class="transparentContainerWithoutBorder">It\'s free and always will be.</p>
          ' . getMarkupForSignUpForm() . '
          </div>
-
-         <div class="linkToSignUpPage">
-            <p>Don\'t have an ife_facebook account?</p>
-            <p>Just click on the link below to sign up for free.</p>
-
-            <a href="signUpPage.php" class="signUpButton">Sign Up</a>
-         </div>
       </div>
-      ';
+
+      <div class="disappearsOnLargeScreens">
+            <header class="mainHeader">
+               <a href="index.php"><h1 class="ifeFacebookLongLogo">ife_facebook</h1></a>
+            </header>
+
+            <h2 class="smallTopMargin">Log In</h2>' . 
+            getMarkupForLoginFormThatDispaysOnMultipleLines() . '
+
+            <p class="smallTopMargin">Don\'t have an ife_facebook account?</p>
+            <p class="verySmallBottomMargin">Just click on the link below to sign up for free.</p>
+            <a href="signUpPage.php" class="bigGreenButton">Sign Up</a>
+      </div>';
    }
 
 
@@ -103,7 +114,7 @@
    function getMarkupForSignUpFormAndShowThatTheFormWasNotFilledCompletely()
    {
       return
-         getMarkupForTheOpeningTagOfFormElement( 'POST', 'processSignUpRequest.php' ) .
+         getMarkupForTheOpeningTagOfNestedFormElement( 'POST', 'processSignUpRequest.php' ) .
             getMarkupForHiddenInputElementContainingUrlOfTheCurrentPage() .
 
             getMarkupForInputElementsForEnteringFirstNameAndSurname( $_GET['firstName'], $_GET['surname'] ) .
@@ -120,14 +131,14 @@
             getMarkupForErrorMessageIfPasswordWasNotPreviouslyFilledByUser( 'Enter your password as well as its confirmation' ) .
 
             getMarkupForSignUpButton() .
-         getMarkupForTheClosingTagOfFormElement();
+         getMarkupForTheClosingTagOfNestedFormElement();
    }
 
 
    function getMarkupForSignUpFormAndShowThatUserNameIsDifferentFromConfirmationOfUserName()
    {
       return
-         getMarkupForTheOpeningTagOfFormElement( 'POST', 'processSignUpRequest.php' ) .
+         getMarkupForTheOpeningTagOfNestedFormElement( 'POST', 'processSignUpRequest.php' ) .
             getMarkupForHiddenInputElementContainingUrlOfTheCurrentPage() .
             getMarkupForInputElementsForEnteringFirstNameAndSurname( $_GET['firstName'], $_GET['surname'] ) .
 
@@ -137,14 +148,14 @@
 
             getMarkupForInputElementsForEnteringPasswordAndConfirmationOfPassword() .
             getMarkupForSignUpButton() .
-         getMarkupForTheClosingTagOfFormElement();
+         getMarkupForTheClosingTagOfNestedFormElement();
    }
 
 
    function getMarkupForSignUpFormAndShowThatUserPasswordIsDifferentFromConfirmationOfUserPassword()
    {
       return
-         getMarkupForTheOpeningTagOfFormElement( 'POST', 'processSignUpRequest.php' ) .
+         getMarkupForTheOpeningTagOfNestedFormElement( 'POST', 'processSignUpRequest.php' ) .
             getMarkupForHiddenInputElementContainingUrlOfTheCurrentPage() .
             getMarkupForInputElementsForEnteringFirstNameAndSurname( $_GET['firstName'], $_GET['surname'] ) .
             getMarkupForInputElementForEnteringEmailOrPhone( $_GET['userName'] ) .
@@ -154,14 +165,14 @@
             getMarkupForErrorMessage( 'The passwords you entered do not match' ) .
 
             getMarkupForSignUpButton() .
-         getMarkupForTheClosingTagOfFormElement();
+         getMarkupForTheClosingTagOfNestedFormElement();
    }
 
 
    function getMarkupForSignUpFormAndShowThatUserNameAlreadyExists()
    {
       return
-         getMarkupForTheOpeningTagOfFormElement( 'POST', 'processSignUpRequest.php' ) .
+         getMarkupForTheOpeningTagOfNestedFormElement( 'POST', 'processSignUpRequest.php' ) .
             getMarkupForHiddenInputElementContainingUrlOfTheCurrentPage() .
             getMarkupForInputElementsForEnteringFirstNameAndSurname( $_GET['firstName'], $_GET['surname'] ) .
 
@@ -171,14 +182,14 @@
 
             getMarkupForInputElementsForEnteringPasswordAndConfirmationOfPassword() .
             getMarkupForSignUpButton() .
-         getMarkupForTheClosingTagOfFormElement();
+         getMarkupForTheClosingTagOfNestedFormElement();
    }
 
 
    function getMarkupForSignUpFormAndShowThatUserInputtedInvalidSignUpDetails()
    {
       return
-         getMarkupForTheOpeningTagOfFormElement( 'POST', 'processSignUpRequest.php' ) .
+         getMarkupForTheOpeningTagOfNestedFormElement( 'POST', 'processSignUpRequest.php' ) .
             getMarkupForHiddenInputElementContainingUrlOfTheCurrentPage() .
 
             getMarkupForInputElementsForEnteringFirstNameAndSurname( $_GET['firstName'], $_GET['surname'] ) .
@@ -191,102 +202,101 @@
 
             getMarkupForInputElementsForEnteringPasswordAndConfirmationOfPassword() .
             getMarkupForSignUpButton() .
-         getMarkupForTheClosingTagOfFormElement();
+         getMarkupForTheClosingTagOfNestedFormElement();
    }
 
 
    function getMarkupForSignUpFormWithoutErrorMessages()
    {
       return
-         getMarkupForTheOpeningTagOfFormElement( 'POST', 'processSignUpRequest.php' ) .
+         getMarkupForTheOpeningTagOfNestedFormElement( 'POST', 'processSignUpRequest.php' ) .
             getMarkupForHiddenInputElementContainingUrlOfTheCurrentPage() .
             getMarkupForInputElementsForEnteringFirstNameAndSurname() .
             getMarkupForInputElementForEnteringEmailOrPhone() .
             getMarkupForInputElementForReEnteringEmailOrPhone() .
             getMarkupForInputElementsForEnteringPasswordAndConfirmationOfPassword() .
             getMarkupForSignUpButton() .
-         getMarkupForTheClosingTagOfFormElement();
+         getMarkupForTheClosingTagOfNestedFormElement();
    }
 
 
    function getMarkupForHiddenInputElementContainingUrlOfTheCurrentPage()
    {
       return '
-               <input type="hidden" name="urlOfSourcePage" value="' . $_SERVER['PHP_SELF'] . '" />';
+               <input type="hidden" name="urlOfSourcePage" value="' . $_SERVER['PHP_SELF'] . '" />
+      ';
    }
 
 
    function getMarkupForInputElementsForEnteringFirstNameAndSurname( $defaultFirstName = NULL, $defaultSurname = NULL )
    {
       return '
-               <div>
-                  <input type="text" name="firstName" placeholder="First name" value="' . $defaultFirstName . '" class="smallInputFieldForSignUpForm" />
-                  <input type="text" name="surname" placeholder="Surname" value="' . $defaultSurname . '" class="smallInputFieldForSignUpForm" />
-               </div>';
+               <div class="transparentContainerWithoutBorder">
+                  <input type="text" name="firstName" placeholder="First name" value="' . $defaultFirstName . '" class="fortyEightPercentWidthOnLargeScreens floatedToLeftOnLargeScreens verySmallBottomMargin" />
+                  <input type="text" name="surname" placeholder="Surname" value="' . $defaultSurname . '" class="fortyEightPercentWidthOnLargeScreens floatedToRightOnLargeScreens" />
+               </div>
+      ';
    }
 
 
    function getMarkupForInputElementForEnteringEmailOrPhone( $defaultUserName = NULL )
    {
       return '
-               <div>
-                  <input type="text" name="userName" placeholder="Email address or phone number" value="' . $defaultUserName . '" class="inputFieldForSignUpForm" />
-               </div>';
+               <div class="transparentContainerWithoutBorder">
+                  <input type="text" name="userName" placeholder="Email address or phone number" value="' . $defaultUserName . '" class="fullWidth" />
+               </div>
+      ';
    }
 
 
    function getMarkupForInputElementForReEnteringEmailOrPhone( $defaultConfirmationOfUserName = NULL )
    {
       return '
-               <div>
-                  <input type="text" name="confirmationOfUserName" placeholder="Re-enter email address or phone number" value="' . $defaultConfirmationOfUserName . '" class="inputFieldForSignUpForm" />
-               </div>';
+               <div class="transparentContainerWithoutBorder">
+                  <input type="text" name="confirmationOfUserName" placeholder="Re-enter email address or phone number" value="' . $defaultConfirmationOfUserName . '" class="fullWidth" />
+               </div>
+      ';
    }
 
 
    function getMarkupForInputElementsForEnteringPasswordAndConfirmationOfPassword()
    {
       return '
-               <div>
-                  <input type="password" name="userPassword" placeholder="Password you will like to use for ife_facebook" class="inputFieldForSignUpForm" />
+               <div class="transparentContainerWithoutBorder">
+                  <input type="password" name="userPassword" placeholder="Password you will like to use for ife_facebook" class="fullWidth" />
                </div>
 
-               <div>
-                  <input type="password" name="confirmationOfUserPassword" placeholder="Confirm password" class="inputFieldForSignUpForm" />
-               </div>';
+               <div class="transparentContainerWithoutBorder">
+                  <input type="password" name="confirmationOfUserPassword" placeholder="Confirm password" class="fullWidth" />
+               </div>
+      ';
    }
 
 
    function getMarkupForSignUpButton()
    {
       return '
-               <div>
-                  <input type="submit" name="signUpButton" value="Sign Up" class="signUpButton">
+               <div class="transparentContainerWithoutBorder">
+                  <input type="submit" name="signUpButton" value="Sign Up" class="bigGreenButton">
                </div>';
-   }
-
-
-   function getMarkupForTheClosingTagOfFormElement()
-   {
-      return '
-            </form>';
    }
 
 
    function getMarkupToCongratulateUserForSuccessfullySigningUp()
    {
-      return '
-      <h1 class="mainHeading">Congratulations! You\'ve successfully signed up with <a href="index.php" class="ifeFacebookLogo">ife_facebook</a>.</h1>
+      return '<section class="mainBody whiteContainerWithBorder">
+         <h1 class="centralizedText blueText smallBottomMargin">Successfully Signed Up</h1>
 
-      <section class="mainSection">
-         <div class="loginDetails">
-            <p>Your username is: ' . $_POST['userName'] . '</p>
-            <p>Your password is: ' . $_POST['userPassword'] . '</p>
+         <p class="centralizedText smallBottomMargin">Congratulations! You\'ve successfully signed up with <a href="index.php" class="boldText">ife_facebook</a>.</p>
+
+         <div class="whiteContainerWithBorder smallBottomMargin boxShadowEffect">
+            <p class="darkGreyText">Your username is: <span class="smallSizedText">' . $_POST['userName'] . '</span></p>
+            <p class="darkGreyText">Your password is: <span class="smallSizedText">' . $_POST['userPassword'] . '</span></p>
          </div>
 
-         <p>Keep these details safe. You will always need them whenever you want to log in to ife_facebook.</p>
-         <p>If you want to log in immediately, click on the link below:</p>
-         <p><a href="index.php">Log in to ife_facebook</a></p>
+         <p class="centralizedText smallBottomMargin">Keep the above details safe. You will always need them whenever you want to log in to <a href="index.php" class="boldText">ife_facebook</a>.</p>
+         <p class="centralizedText smallBottomMargin">If you want to log in immediately, click on the link below:</p>
+         <p class="centralizedText"><a href="index.php">Log in to ife_facebook</a></p>
       </section>';
    }
 
@@ -307,76 +317,68 @@
 
    function getMarkupToTellUserToReEnterLoginDetailsBecauseUserNameIsNotCorrect()
    {
-      return '
-      <div class="containerForEditForm">
-         <h3>The email address or phone number you entered is not correct. Why not try to login again?</h3>
-      '  . 
-         getMarkupForLoginFormWithDefaultValues( NULL, NULL ) . '
-      </div> 
-      ';
+      return '<div class="mainBody whiteContainerWithBorder">
+            <h1 class="blueText smallBottomMargin">Incorrect Username</h1>
+            <p class="smallBottomMargin">The email address or phone number you entered is not correct. Please, re-enter your login details.</p>' . 
+            getMarkupForLoginFormThatDispaysOnMultipleLines( NULL, NULL ) . '
+      </div>';
    }
 
 
    function getMarkupToTellUserToReEnterLoginDetailsBecausePasswordIsNotCorrect()
    {
       return '
-      <div class="containerForEditForm">
-         <h3>The password you entered is not correct. Why not try to login again?</h3>
-      '  . 
-         getMarkupForLoginFormWithDefaultValues( $_POST['userName'], NULL ) . '
-      </div>
-      ';
+      <div class="mainBody whiteContainerWithBorder">
+            <h1 class="blueText smallBottomMargin">Incorrect Password</h1>
+            <p class="smallBottomMargin">The password you entered is not correct. Please, re-enter your password.</p>' . 
+            getMarkupForLoginFormThatDispaysOnMultipleLines( $_POST['userName'], NULL ) . '
+      </div>';
    }
 
 
-   function getMarkupForLoginFormWithoutDefaultValues()
+   function getMarkupForLoginFormThatDispaysOnSingleLine( $defaultUserName = NULL, $defaultUserPassword = NULL )
    {
       return '
-         <h2 class="loginMessage">Log In</h2>
 
-         <form method="POST" action="processLoginRequest.php" class="loginForm">
-            ' . getMarkupForHiddenInputElementThatKeepsTrackOfTheSourcePage() . '
+            <form method="POST" action="processLoginRequest.php" class="transparentContainerWithoutBorder floatedToRight">' .
+               getMarkupForHiddenInputElementThatKeepsTrackOfTheSourcePage() . '
+               <div class="floatedToLeft verySmallRightMargin">
+                  <label for="userName" class="smallSizedText whiteText displayAsBlock">Email or Phone</label>
+                  <input type="text" id="userName" name="userName" value="' . $defaultUserName . '"/>
+               </div>
 
-            <label class="loginFormEntry">
-               <span class="descriptionInLoginForm">Email or Phone</span>
-               <input type="text" name="userName" class="inputFieldForLoginForm" />
-            </label>
+               <div class="floatedToLeft verySmallRightMargin">
+                  <label for="userPassword" class="smallSizedText whiteText displayAsBlock">Password</label>
+                  <input type="password" id="userPassword" name="userPassword" value="' . $defaultUserPassword . '"/>
+               </div>
 
-            <label class="loginFormEntry">
-               <span class="descriptionInLoginForm">Password</span>
-               <input type="password" name="userPassword" class="inputFieldForLoginForm" />
-            </label>
-
-            <label class="loginFormEntry">
-               <input type="submit" name="loginButton" value="Log In" class="loginButton" />
-            </label>
-         </form> <!-- end login form -->
-      ';
+               <div class="floatedToLeft massiveRightMargin">
+                  <input type="submit" name="loginButton" value="Log In" class="blueButton verySmallTopMargin" />
+               </div>
+            </form>';
    }
 
 
-   function getMarkupForLoginFormWithDefaultValues( $defaultValueOfUserName, $defaultValueOfUserPassword )
+   function getMarkupForLoginFormThatDispaysOnMultipleLines( $defaultUserName = NULL, $defaultUserPassword = NULL )
    {
       return '
-         <form method="POST" action="processLoginRequest.php" >
-            ' . getMarkupForHiddenInputElementThatKeepsTrackOfTheSourcePage() . '
 
-            <label class="fieldInEditForm">
-               Email or Phone: 
-               <input type="text" name="userName" value="' . $defaultValueOfUserName . '" />
-            </label>
+            <form method="POST" action="processLoginRequest.php" class="transparentContainerWithBorder">' .
+               getMarkupForHiddenInputElementThatKeepsTrackOfTheSourcePage() . '
+               <div class="smallTopMargin">
+                  <label for="userName" class="thirtyPercentWidth">Email or Phone:</label>
+                  <input type="text" id="userName" name="userName" value="' . $defaultUserName . '"/>
+               </div>
 
-            <label class="fieldInEditForm">
-               Password: 
-               <input type="password" name="userPassword" value="' . $defaultValueOfUserPassword . '" />
-            </label>
+               <div class="smallTopMargin">
+                  <label for="userPassword" class="thirtyPercentWidth">Password</label>
+                  <input type="password" id="userPassword" name="userPassword" value="' . $defaultUserPassword . '"/>
+               </div>
 
-            <label class="fieldInEditForm">
-               <input type="submit" name="loginButton" value="Login" class="buttonInEditForm" />
-            </label>
-         </form>
-
-         <p><a href="forgotPassword.php">Forgot Password? Click here</a></p>';
+               <div class="smallTopMargin">
+                 <input type="submit" name="loginButton" value="Log In" class="blueButton" />
+               </div>
+            </form>';
    }
 
 
@@ -387,7 +389,7 @@
       */
       if ( isset( $_POST['urlOfSourcePage'] ) ) {
          return '
-            <input type="hidden" name="urlOfSourcePage" value="'  .  $_POST['urlOfSourcePage']  .  '"/>
+               <input type="hidden" name="urlOfSourcePage" value="'  .  $_POST['urlOfSourcePage']  .  '"/>
          ';
       }
       else {
@@ -397,16 +399,15 @@
    }
 
 
-   function getMarkupToTellUserToLogIn( $urlOfSourcePage = NULL )
+   function getMarkupToTellUserToLogin( $urlOfSourcePage = NULL )
    {
       return '
-      <div>
-         <h1>ife_facebook</h1>
-         <p>You must login to continue</p>
+      <div class="mainBody whiteContainerWithBorder">
+         <p class="bigSizedText smallTopMargin smallBottomMargin">You must login to continue</p>
 
          <form method="POST" action="index.php">
             <input type="hidden" name="urlOfSourcePage" value="' . ( $urlOfSourcePage == NULL ? $_SERVER['PHP_SELF'] : $urlOfSourcePage ) . '" />
-            <input type="submit" value="To log in, click here" />
+            <input type="submit" value="Click Here To Log In" class="bigBlueButton"/>
          </form>
       </div>
       ';
@@ -416,15 +417,15 @@
    function getMarkupToDisplayTextAreaForPostingStatusUpdate()
    {
       return '
-         <form method="POST" action="processPostNewStatusUpdateRequest.php" class="formForPostingStatusUpdate">
-            <label class="containerForStatusUpdateTextArea">
-               <p class="statusUpdateDescription">What\'s on your mind? Post it.</p>
-               <textarea name="statusUpdateText" class="statusUpdateTextArea"></textarea>
-            </label>
+         <form method="POST" action="processPostNewStatusUpdateRequest.php">
+            <div>
+               <label for="statusUpdateText" class="darkGreyText">What\'s on your mind? Post it.</label>
+               <textarea id="statusUpdateText" name="statusUpdateText"></textarea>
+            </div>
 
-            <label class="containerForStatusUpdateButton">
-               <input type="submit" value="Post" class="statusUpdateButton" />
-            </label>
+            <div class="lightBlueContainerWithBorder">
+               <input type="submit" value="Post" class="bigBlueButton floatedToRight" />
+            </div>
          </form>
       ';
    }
@@ -433,25 +434,23 @@
    function getMarkupToDisplayLinkForRefreshingThisPage()
    {
       return '
-         <h3>News Feed (<a href="' . $_SERVER['PHP_SELF'] . '">refresh</a>)</h3>
+         <h1 class="moderateSizedText smallTopMargin">News Feed (<a href="' . $_SERVER['PHP_SELF'] . '">refresh</a>)</h1>
       ';
    }
 
 
-   function getMarkupToDisplaySomeStatusUpdatesFromDatabase( $offset, $numberOfStatusUpdates )
+   function getMarkupToDisplayAllStatusUpdatesContainedInArray( $arrayContainingIdOfStatusUpdates )
    {
-      $idOfStatusUpdates = retrieveFromDatabaseAndReturnInArrayIdOfStatusUpdates( $offset, $numberOfStatusUpdates );
 
-      if ( doesNotExistInDatabase( $idOfStatusUpdates ) ) {
+      if ( $arrayContainingIdOfStatusUpdates == NULL ) {
          return '
-         <p>Sorry, No relevant status update exists.</p>
-         ';
+         <p>Sorry, No relevant status update exists.</p>';
       }
 
       $list = '';
 
-      for ( $index = 0; $index < sizeof( $idOfStatusUpdates ); $index++ ) {
-         $list .= getMarkupToDisplayStatusUpdateInDefaultFormat( $idOfStatusUpdates[$index] );
+      for ( $index = 0; $index < sizeof( $arrayContainingIdOfStatusUpdates ); $index++ ) {
+         $list .= getMarkupToDisplayStatusUpdateInDefaultFormat( $arrayContainingIdOfStatusUpdates[$index] );
       }
 
       return $list;
@@ -515,27 +514,25 @@
 
       if ( doesNotExistInDatabase( $detailsOfStatusUpdate ) ) {
          return '
-         <section class="statusUpdate">Can\'t find this status update, it may have been deleted.</section>';
+         <section class="whiteContainerWithBorder bigBottomMargin">Can\'t find this status update, it may have been deleted.</section>';
       }
       else {
          return '
-
-         <section class="statusUpdate" id="' . $detailsOfStatusUpdate['status_update_id'] . '">
+         <section class="whiteContainerWithBorder noPadding bigBottomMargin" id="' . $detailsOfStatusUpdate['status_update_id'] . '">
             ' . getMarkupToDisplayHeaderAndBodyOfStatusUpdate( $detailsOfStatusUpdate ) . '
 
-            <footer class="statusUpdateFooter">
-               <div class="infoAboutLikes">' .
+            <footer class="lightBlueContainerWithoutBorder topBorder">
+               <section class="lightBlueContainerWithoutBorder noPadding verySmallBottomMargin bottomBorder">' .
                   getMarkupToDisplayLikeButtonOrUnlikeButton( $detailsOfStatusUpdate['status_update_id'] ) . 
                   getMarkupToDisplayLinkForViewingNamesOfLikers( $detailsOfStatusUpdate['number_of_likes'], $detailsOfStatusUpdate['status_update_id'] ) . '
-               </div>
+               </section>
 
-               <div class="infoAboutComments">' .
-                  getMarkupToDisplayLinkForViewingComments( $detailsOfStatusUpdate['status_update_id'] ) . '
-               </div>
-               ' . 
-               getMarkupForPostCommentForm( $detailsOfStatusUpdate['status_update_id'] ) . '
+               <section class="lightBlueContainerWithoutBorder noPadding">' .
+                  getMarkupToDisplayLinkForViewingComments( $detailsOfStatusUpdate['status_update_id'] ) .
+                  getMarkupForPostCommentForm( $detailsOfStatusUpdate['status_update_id'] ) . '
+               </section>
             </footer>
-         </section> <!-- end section.statusUpdate -->
+         </section>
          ';
       }
 
@@ -550,30 +547,28 @@
 
       if ( doesNotExistInDatabase( $detailsOfStatusUpdate ) ) {
          return '
-         <section class="statusUpdate">Can\'t find this status update, it may have been deleted.</section>';
+         <section class="whiteContainerWithBorder bigBottomMargin">Can\'t find this status update, it may have been deleted.</section>';
       }
       else {
          return '
-
-         <section class="statusUpdate" id="' . $detailsOfStatusUpdate['status_update_id'] . '">
+         <section class="whiteContainerWithBorder noPadding bigBottomMargin" id="' . $detailsOfStatusUpdate['status_update_id'] . '">
             ' . getMarkupToDisplayHeaderAndBodyOfStatusUpdate( $detailsOfStatusUpdate ) . '
 
-            <footer class="statusUpdateFooter">
-               <div class="infoAboutLikes">' .
+            <footer class="lightBlueContainerWithoutBorder topBorder">
+               <section class="lightBlueContainerWithoutBorder noPadding verySmallBottomMargin bottomBorder">' .
                   getMarkupToDisplayLikeButtonOrUnlikeButton( $detailsOfStatusUpdate['status_update_id'] ) . 
                   getMarkupToDisplayLinkForViewingNamesOfLikers( $detailsOfStatusUpdate['number_of_likes'], $detailsOfStatusUpdate['status_update_id'] ) . '
-               </div>
+               </section>
 
-               <div class="infoAboutComments">' .
+               <section class="lightBlueContainerWithoutBorder noPadding">' .
                   getMarkupToDisplayLinkForHidingComments( $detailsOfStatusUpdate['status_update_id'] ) .
                   getMarkupToDisplayGeneralHeadingForComments() .
                   getMarkupToDisplaySomeCommentsOnTheSpecifiedStatusUpdate( $detailsOfStatusUpdate['status_update_id'], 
                      $_GET['offsetForComments'], $_GET['numberOfCommentsToBeDisplayed'] ) .  
                   getMarkupToDisplayLinkForViewingOlderComments( $detailsOfStatusUpdate['status_update_id'] ) .
-                  getMarkupToDisplayLinkForViewingNewerComments( $detailsOfStatusUpdate['status_update_id'] ) . '
-               </div>
-               ' . 
-               getMarkupForPostCommentForm( $detailsOfStatusUpdate['status_update_id'] ) . '
+                  getMarkupToDisplayLinkForViewingNewerComments( $detailsOfStatusUpdate['status_update_id'] ) .
+                  getMarkupForPostCommentForm( $detailsOfStatusUpdate['status_update_id'] ) . '
+               </section>
             </footer>
          </section>
          ';
@@ -590,16 +585,15 @@
 
       if ( doesNotExistInDatabase( $detailsOfStatusUpdate ) ) {
          return '
-         <section class="statusUpdate">Can\'t find this status update, it may have been deleted.</section>';
+         <section class="whiteContainerWithBorder bigBottomMargin">Can\'t find this status update, it may have been deleted.</section>';
       }
       else {
          return '
-
-         <section class="statusUpdate" id="' . $detailsOfStatusUpdate['status_update_id'] . '">
+         <section class="whiteContainerWithBorder noPadding bigBottomMargin" id="' . $detailsOfStatusUpdate['status_update_id'] . '">
             ' . getMarkupToDisplayHeaderAndBodyOfStatusUpdate( $detailsOfStatusUpdate ) . '
 
-            <footer class="statusUpdateFooter">
-               <div class="infoAboutLikes">' .
+            <footer class="lightBlueContainerWithoutBorder topBorder">
+               <section class="lightBlueContainerWithoutBorder noPadding verySmallBottomMargin bottomBorder">' .
                   getMarkupToDisplayLikeButtonOrUnlikeButton( $detailsOfStatusUpdate['status_update_id'] ) . 
                   getMarkupToDisplayLinkForHidingNamesOfLikers(  $detailsOfStatusUpdate['status_update_id']  ) .
                   getMarkupToDisplayGeneralHeadingForNamesOfLikers() .
@@ -607,15 +601,14 @@
                      $_GET['offsetForNamesOfLikers'], $_GET['numberOfNamesOfLikersToBeDisplayed'] ) . 
                   getMarkupToDisplayLinkForViewingPreviousNamesOfLikers( $detailsOfStatusUpdate['status_update_id'] ) . 
                   getMarkupToDisplayLinkForViewingMoreNamesOfLikers( $detailsOfStatusUpdate['status_update_id'] ) . '
-               </div>
+               </section>
 
-               <div class="infoAboutComments">' .
-                  getMarkupToDisplayLinkForViewingComments( $detailsOfStatusUpdate['status_update_id'] ) . '
-               </div>
-               ' . 
-               getMarkupForPostCommentForm( $detailsOfStatusUpdate['status_update_id'] ) . '
+               <section class="lightBlueContainerWithoutBorder noPadding">' .
+                  getMarkupToDisplayLinkForViewingComments( $detailsOfStatusUpdate['status_update_id'] ) . 
+                  getMarkupForPostCommentForm( $detailsOfStatusUpdate['status_update_id'] ) . '
+               </section>
             </footer>
-         </section> <!-- end section.statusUpdate -->
+         </section>
          ';
       }
 
@@ -627,21 +620,19 @@
       $namesOfPoster = retrieveFromDatabaseFirstNameLastNameAndNickName( $detailsOfStatusUpdate['id_of_poster'] );
 
       if ( doesNotExistInDatabase( $namesOfPoster ) ) {
-         return '
-            <header class="statusUpdateHeader">There is something wrong with this status update.</header>';
+         return '<header class="whiteContainerWithoutBorder">There is something wrong with this status update.</header>';
       }
       else {
-         return '
-            <header class="statusUpdateHeader">
-               <h2 class="nameOfPoster">' . $namesOfPoster['first_name'] . ' ' . $namesOfPoster['last_name'] . '</h2> 
-               <h3 class="timeOfPosting">' . 
+         return '<header class="whiteContainerWithoutBorder">
+               <a href="profileOfUser.php?idOfRequiredUser=' . $detailsOfStatusUpdate['id_of_poster'] . '"><h2 class="moderateSizedText">' . $namesOfPoster['first_name'] . ' ' . $namesOfPoster['last_name'] . '</h2></a>
+               <h3 class="smallSizedText darkGreyText">' . 
                   $detailsOfStatusUpdate['month_of_posting'] . ' ' . $detailsOfStatusUpdate['day_of_posting'] .
                   ' at ' . 
                   formatTimeShowingAmOrPm( $detailsOfStatusUpdate['hour_of_posting'], $detailsOfStatusUpdate['minute_of_posting'] ) .
                '</h3>
             </header>
 
-            <div class="statusUpdateText">
+            <div class="whiteContainerWithoutBorder">
                ' . $detailsOfStatusUpdate['status_update_text'] . '
             </div>';
       }
@@ -652,21 +643,21 @@
    function getMarkupToDisplayLikeButtonOrUnlikeButton( $idOfStatusUpdate )
    {
       $markup = '
-                  <form method="POST" action="processLikeOrUnlikeStatusUpdateRequest.php" class="containerForLikeButtonOrUnlikeButton">
-                     <input type="hidden" name="idOfStatusUpdate" value="' . $idOfStatusUpdate . '" />';
+                  <form method="POST" action="processRequestToLikeOrUnlikeStatusUpdate.php">
+                     <input type="hidden" name="idOfStatusUpdate" value="' . $idOfStatusUpdate . '" />
+                     <input type="hidden" name="urlOfSourcePage" value="' . $_SERVER['PHP_SELF']  . '" />';
 
       if ( userLikesStatusUpdate( $_SESSION['idOfLoggedInUser'], $idOfStatusUpdate ) ) {
          $markup .= '
-                     <input type="submit" name="unlikeButton" value="Unlike" class="likeButtonOrUnlikeButton" />';
+                     <input type="submit" name="unlikeButton" value="Unlike" class="blueButton" />';
       }
       else {
          $markup .= '
-                     <input type="submit" name="likeButton" value="Like" class="likeButtonOrUnlikeButton" />';
+                     <input type="submit" name="likeButton" value="Like" class="blueButton" />';
       }
 
       $markup .= '
-                  </form>
-      ';
+                  </form>';
 
       return $markup;
    }
@@ -675,7 +666,7 @@
    function getMarkupToDisplayLinkForViewingNamesOfLikers( $numberOfLikes, $idOfStatusUpdate )
    {
       $markup = '
-                  <a href="' . $_SERVER['PHP_SELF'] . '?requiredAction=viewNamesOfLikers&idOfRequiredStatusUpdate=' . $idOfStatusUpdate . '&offsetForNamesOfLikers=0&numberOfNamesOfLikersToBeDisplayed=' . DEFAULT_NUMBER_OF_ROWS_FOR_LIKES . '#' . $idOfStatusUpdate . '" class="linkWithinStatusUpdate">';
+                  <a href="' . $_SERVER['PHP_SELF'] . '?requiredAction=viewNamesOfLikers&idOfRequiredStatusUpdate=' . $idOfStatusUpdate . '&offsetForNamesOfLikers=0&numberOfNamesOfLikersToBeDisplayed=' . DEFAULT_NUMBER_OF_ROWS_FOR_LIKES . '#' . $idOfStatusUpdate . '">';
 
       if ( $numberOfLikes == 0 ) {
          $markup = '';
@@ -811,7 +802,7 @@
 
       if ( atLeastOneCommentOnThisStatusUpdateExistsInDatabase( $idOfStatusUpdate ) ) {
          return '
-                  <a href="index.php?requiredAction=viewComments&idOfRequiredStatusUpdate=' . $idOfStatusUpdate . '&offsetForComments=0&numberOfCommentsToBeDisplayed=' . DEFAULT_NUMBER_OF_ROWS_FOR_COMMENTS . '#' . $idOfStatusUpdate .  '" class="linkWithinStatusUpdate">View comments on this post.</a>';
+                  <a href="' . $_SERVER['PHP_SELF'] . '?requiredAction=viewComments&idOfRequiredStatusUpdate=' . $idOfStatusUpdate . '&offsetForComments=0&numberOfCommentsToBeDisplayed=' . DEFAULT_NUMBER_OF_ROWS_FOR_COMMENTS . '#' . $idOfStatusUpdate .  '">View comments on this post.</a>';
       }
       else {
          return '';
@@ -823,25 +814,26 @@
    function getMarkupForPostCommentForm( $idOfStatusUpdate )
    {
       return '
-               <form method="POST" action="processPostNewCommentRequest.php" class="containerForCommentField">
-                  <input type="hidden" name="idOfStatusUpdate" value="' . $idOfStatusUpdate . '" />
-                  <input type="text" name="commentText" placeholder="Write a comment..." class="commentField" />
-                  <input type="submit" value="Post" class="commentButton" />
-               </form>';
+                  <form method="POST" action="processPostNewCommentRequest.php" class="notFloating">
+                     <input type="hidden" name="idOfStatusUpdate" value="' . $idOfStatusUpdate . '" />
+                     <input type="hidden" name="urlOfSourcePage" value="' . $_SERVER['PHP_SELF'] . '" />
+                     <input type="text" name="commentText" placeholder="Write a comment..." class="threeQuartersWidth" />
+                     <input type="submit" value="Post" class="blueButton" />
+                  </form>';
    }
 
 
    function getMarkupToDisplayLinkForHidingComments( $idOfStatusUpdate )
    {
       return '
-                  <a href="index.php?requiredAction=hideComments#' . $idOfStatusUpdate . '" class="linkWithinStatusUpdate" id="linkForHidingComments">Hide comments</a>';
+                  <a href="' . $_SERVER['PHP_SELF'] . '?requiredAction=hideComments#' . $idOfStatusUpdate . '">Hide comments</a>';
    }
 
 
    function getMarkupToDisplayGeneralHeadingForComments()
    {
       return '
-                  <h1 class="headingForComments">Comments on this post:</h1>
+                  <h1 class="moderateSizedText">Comments on this post:</h1>
       ';
    }
 
@@ -866,7 +858,7 @@
 
       if ( doesNotExistInDatabase( $detailsOfComment ) ) {
          return '
-                  <section class="comment">Couldn\'t find this comment, it must have been deleted.</section>';
+                  <section class="lightBlueContainerWithoutBorder">Couldn\'t find this comment, it must have been deleted.</section>';
       }
 
       $namesOfCommenter = 
@@ -874,21 +866,21 @@
 
       if ( doesNotExistInDatabase( $namesOfCommenter ) ) {
          return '
-                  <section class="comment">There is something wrong with this comment.</section>';
+                  <section class="lightBlueContainerWithoutBorder">There is something wrong with this comment.</section>';
       }
 
       return '
-                  <section class="comment">
-                     <header class="commentHeader">
-                        <h2 class="nameOfCommenter">' . $namesOfCommenter['first_name'] . ' ' . $namesOfCommenter['last_name'] . '</h2>
-                        <h3 class="timeOfCommenting">' . 
+                  <section class="lightBlueContainerWithoutBorder">
+                     <header class="smallRightMargin verySmallBottomMargin floatedToLeftOnLargeScreens">
+                        <a href="profileOfUser.php?idOfRequiredUser=' . $detailsOfComment['id_of_commenter'] . '"><h2 class="moderateSizedText">' . $namesOfCommenter['first_name'] . ' ' . $namesOfCommenter['last_name'] . '</h2></a>
+                        <h3 class="smallSizedText">' . 
                            $detailsOfComment['month_of_commenting'] . ' ' . $detailsOfComment['day_of_commenting'] . 
                            ' at ' . 
                            formatTimeShowingAmOrPm( $detailsOfComment['hour_of_commenting'], $detailsOfComment['minute_of_commenting'] ) . 
                         '</h3>
                      </header>
 
-                     <p class="commentText">
+                     <p>
                         ' . $detailsOfComment['comment_text'] . '
                      </p>
                   </section>
@@ -901,7 +893,7 @@
 
       if ( atLeastOneOlderCommentOnThisStatusUpdateExistsInDatabase( $idOfStatusUpdate ) ) {
          return '
-                  <a href="index.php?requiredAction=viewComments&idOfRequiredStatusUpdate=' . $idOfStatusUpdate . '&offsetForComments=' . $_SESSION['totalNumberOfCommentsDisplayedSoFar'] . '&numberOfCommentsToBeDisplayed=' . DEFAULT_NUMBER_OF_ROWS_FOR_COMMENTS . '#' . $idOfStatusUpdate . '" class="linkWithinStatusUpdate" id="linkForViewingOlderComments">&lt&ltView Older Comments</a>';
+                  <a href="' . $_SERVER['PHP_SELF'] . '?requiredAction=viewComments&idOfRequiredStatusUpdate=' . $idOfStatusUpdate . '&offsetForComments=' . $_SESSION['totalNumberOfCommentsDisplayedSoFar'] . '&numberOfCommentsToBeDisplayed=' . DEFAULT_NUMBER_OF_ROWS_FOR_COMMENTS . '#' . $idOfStatusUpdate . '" class="floatedToLeft">&lt&ltView Older Comments</a>';
       }
       else {
          return '';
@@ -915,7 +907,7 @@
 
       if ( $_SESSION['totalNumberOfCommentsDisplayedSoFar'] > DEFAULT_NUMBER_OF_ROWS_FOR_COMMENTS ) {
          return '
-                  <a href="index.php?requiredAction=viewComments&idOfRequiredStatusUpdate=' . $idOfStatusUpdate . '&offsetForComments=' . ( $_SESSION['totalNumberOfCommentsDisplayedSoFar'] - $_SESSION['totalNumberOfCommentsCurrentlyListed'] - DEFAULT_NUMBER_OF_ROWS_FOR_COMMENTS ) . '&numberOfCommentsToBeDisplayed=' . DEFAULT_NUMBER_OF_ROWS_FOR_COMMENTS . '#' . $idOfStatusUpdate .  '" class="linkWithinStatusUpdate" id="linkForViewingNewerComments">View Newer Comments&gt;&gt;</a>';
+                  <a href="' . $_SERVER['PHP_SELF'] . '?requiredAction=viewComments&idOfRequiredStatusUpdate=' . $idOfStatusUpdate . '&offsetForComments=' . ( $_SESSION['totalNumberOfCommentsDisplayedSoFar'] - $_SESSION['totalNumberOfCommentsCurrentlyListed'] - DEFAULT_NUMBER_OF_ROWS_FOR_COMMENTS ) . '&numberOfCommentsToBeDisplayed=' . DEFAULT_NUMBER_OF_ROWS_FOR_COMMENTS . '#' . $idOfStatusUpdate .  '" class="floatedToRight">View Newer Comments&gt;&gt;</a>';
       }
       else {
          return '';
@@ -927,14 +919,14 @@
    function getMarkupToDisplayLinkForHidingNamesOfLikers( $idOfStatusUpdate )
    {
       return '
-                  <a href="index.php?requiredAction=hideNamesOfLikers#' . $idOfStatusUpdate . '" class="linkWithinStatusUpdate" id="linkForHidingNamesOfLikers">Hide names of likers</a>';
+                  <a href="' . $_SERVER['PHP_SELF'] . '?requiredAction=hideNamesOfLikers#' . $idOfStatusUpdate . '">Hide names of likers</a>';
    }
 
 
    function getMarkupToDisplayGeneralHeadingForNamesOfLikers()
    {
       return '
-                  <h1 class="headingForNamesOfLikers">The following people like this post:</h1>
+                  <h1 class="moderateSizedText">The following people like this post:</h1>
       ';
    }
 
@@ -964,11 +956,11 @@
 
       if ( doesNotExistInDatabase( $idOfLiker ) ) {
          return '
-                     <li class="nameOfLiker">Couldn\'t find the name of this liker, something is wrong somewhere</li>';
+                     <li>Couldn\'t find the name of this liker, something is wrong somewhere</li>';
       }
       else {
          return '
-                     <li class="nameOfLiker">' . $nameOfLiker['first_name'] . ' ' . $nameOfLiker['last_name'] . '</li>';
+                     <li><a href="profileOfUser.php?idOfRequiredUser=' . $idOfLiker . '">' . $nameOfLiker['first_name'] . ' ' . $nameOfLiker['last_name'] . '</a></li>';
       }
 
    }
@@ -979,7 +971,7 @@
 
       if ( $_SESSION['totalNumberOfLikersDisplayedSoFar'] > DEFAULT_NUMBER_OF_ROWS_FOR_LIKES ) {
          return '
-                  <a href="index.php?requiredAction=viewNamesOfLikers&idOfRequiredStatusUpdate=' . $idOfStatusUpdate . '&offsetForNamesOfLikers=' . ( $_SESSION['totalNumberOfLikersDisplayedSoFar'] - $_SESSION['totalNumberOfLikersCurrentlyListed'] - DEFAULT_NUMBER_OF_ROWS_FOR_LIKES ) . '&numberOfNamesOfLikersToBeDisplayed=' . DEFAULT_NUMBER_OF_ROWS_FOR_LIKES . '#' . $idOfStatusUpdate . '" class="linkWithinStatusUpdate" id="linkForViewingPreviousNamesOfLikers">&lt;&lt;View previous</a>';
+                  <a href="' . $_SERVER['PHP_SELF'] . '?requiredAction=viewNamesOfLikers&idOfRequiredStatusUpdate=' . $idOfStatusUpdate . '&offsetForNamesOfLikers=' . ( $_SESSION['totalNumberOfLikersDisplayedSoFar'] - $_SESSION['totalNumberOfLikersCurrentlyListed'] - DEFAULT_NUMBER_OF_ROWS_FOR_LIKES ) . '&numberOfNamesOfLikersToBeDisplayed=' . DEFAULT_NUMBER_OF_ROWS_FOR_LIKES . '#' . $idOfStatusUpdate . '" class="floatedToLeft">&lt;&lt;View previous</a>';
       }
       else {
          return '';
@@ -993,7 +985,7 @@
 
       if ( atLeastOneMoreLikerOfThisStatusUpdateExistsInDatabase( $idOfStatusUpdate ) ) {
          return '
-                  <a href="index.php?requiredAction=viewNamesOfLikers&idOfRequiredStatusUpdate=' . $idOfStatusUpdate . '&offsetForNamesOfLikers=' . $_SESSION['totalNumberOfLikersDisplayedSoFar'] . '&numberOfNamesOfLikersToBeDisplayed=' . DEFAULT_NUMBER_OF_ROWS_FOR_LIKES . '#' . $idOfStatusUpdate . '" class="linkWithinStatusUpdate" id="linkForViewingMoreNamesOfLikers">View more&gt;&gt;</a>';
+                  <a href="' . $_SERVER['PHP_SELF'] . '?requiredAction=viewNamesOfLikers&idOfRequiredStatusUpdate=' . $idOfStatusUpdate . '&offsetForNamesOfLikers=' . $_SESSION['totalNumberOfLikersDisplayedSoFar'] . '&numberOfNamesOfLikersToBeDisplayed=' . DEFAULT_NUMBER_OF_ROWS_FOR_LIKES . '#' . $idOfStatusUpdate . '" class="floatedToRight">View more&gt;&gt;</a>';
       }
       else {
          return '';
@@ -1002,67 +994,117 @@
    }
 
 
-   function getMarkupToDisplayLinkForViewingMoreStatusUpdates()
+   function getMarkupToDisplayLinkForViewingMoreStatusUpdatesThatWerePostedByLoggedInUserOrHisFriends()
    {
 
-      if ( atLeastOneMoreStatusUpdateExistsInDatabase()) {
+      if ( atLeastOneMoreStatusUpdateThatWasPostedByLoggedInUserOrHisFriendsExistsInDatabase()) {
          return '
-         <a href="index.php?requiredAction=viewMoreStatusUpdates&offsetForStatusUpdates=' . $_SESSION['totalNumberOfStatusUpdatesDisplayedSoFar'] . '&numberOfStatusUpdatesToBeDisplayed=' . DEFAULT_NUMBER_OF_ROWS_FOR_STATUS_UPDATES . '">View more posts</a>
+         <a href="' . $_SERVER['PHP_SELF'] . '?requiredAction=viewMoreStatusUpdates&offsetForStatusUpdates=' . $_SESSION['totalNumberOfStatusUpdatesDisplayedSoFar'] . '&numberOfStatusUpdatesToBeDisplayed=' . DEFAULT_NUMBER_OF_ROWS_FOR_STATUS_UPDATES . '">View more posts&gt;&gt;</a>';
+      }
+      else {
+         return '';
+      }
+
+   }
+
+
+   function getMarkupToDisplayLinkForViewingMoreStatusUpdatesThatWerePostedByUser( $idOfUser )
+   {
+      if ( atLeastOneMoreStatusUpdateThatWasPostedByUserExistsInDatabase( $idOfUser ) ) {
+         return '
+         <a href="' . $_SERVER['PHP_SELF'] . '?requiredAction=viewMoreStatusUpdates&offsetForStatusUpdates=' . $_SESSION['totalNumberOfStatusUpdatesDisplayedSoFar'] . '&numberOfStatusUpdatesToBeDisplayed=' . DEFAULT_NUMBER_OF_ROWS_FOR_STATUS_UPDATES . '">View more posts&gt;&gt;</a>
          ';
       }
-      else {
-         return '';
-      }
-
    }
 
 
-   function getMarkupForTopOfProfilePage( $urlOfCurrentProfilePage )
+   function getMarkupForTopOfProfilePageOfLoggedInUser( $urlOfCurrentProfilePage )
    {
       return '
-         <div class="topOfProfilePage">
-            <img src="images/coverPhoto.jpg" height="260px" width="100%" name="coverPhoto" class="coverPhoto"/>' .
+         <div style="background-image: url( images/coverPhoto.jpg ); background-size: cover;" class="lightBlueContainerWithBorder disappearsOnSmallScreens whiteText">' .
+            getMarkupToDisplayUserNamesOfUser( $_SESSION['idOfLoggedInUser'] )  . '
+         </div>
 
-            getMarkupToDisplayUserNames()  . '
-            <nav class="otherImportantLinks">
-               <ul>
-                  <li><a href="myProfile.php" class="otherImportantLink" ' . ( $urlOfCurrentProfilePage == 'myProfile.php' ? 'id="currentPage"' : '' ) . '>Timeline</a></li>
-                  <li><a href="aboutMe.php" class="otherImportantLink" ' . ( $urlOfCurrentProfilePage == 'aboutMe.php' ? 'id="currentPage"' : '' ) . '>About</a></li>
-                  <li><a href="myFriends.php" class="otherImportantLink" ' . ( $urlOfCurrentProfilePage == 'myFriends.php' ? 'id="currentPage"' : '' ) . '>Friends&nbsp;<span class="numberOfFriends">' . $_SESSION['totalNumberOfFriends'] . '</span></a></li>
-                  <li><a href="manageAccount.php" class="otherImportantLink" ' . ( $urlOfCurrentProfilePage == 'editAccountInformation.php' ? 'id="currentPage"' : '' ) . '>Manage Account</a></li>
-                  <li><a class="otherImportantLink"></a></li>
-               </ul>
-            </nav>
-         </div>  <!-- end div.topOfProfilePage -->
+         <div class="disappearsOnLargeScreens blackText">' .
+            getMarkupToDisplayUserNamesOfUser( $_SESSION['idOfLoggedInUser'] )  . '
+         </div>
+
+         <nav class="blueHorizontalNavigationLinksWithBorders">
+            <ul>
+               <li><a href="myProfile.php" ' . ( $urlOfCurrentProfilePage == 'myProfile.php' ? 'id="currentPage"' : '' ) . '>Timeline</a></li>
+               <li><a href="aboutMe.php" ' . ( $urlOfCurrentProfilePage == 'aboutMe.php' ? 'id="currentPage"' : '' ) . '>About</a></li>
+               <li><a href="myFriends.php" ' . ( $urlOfCurrentProfilePage == 'myFriends.php' ? 'id="currentPage"' : '' ) . '>Friends&nbsp;<span class="smallSizedText">' . $_SESSION['totalNumberOfFriends'] . '</span></a></li>
+               <li><a href="manageAccount.php" ' . ( $urlOfCurrentProfilePage == 'editAccountInformation.php' ? 'id="currentPage"' : '' ) . '>Manage Account</a></li>
+            </ul>
+         </nav>
       ';
    }
 
 
-   function getMarkupToDisplayUserNames()
+   function getMarkupForTopOfProfilePageOfRequiredUser( $urlOfCurrentProfilePage )
    {
-      $names = retrieveFromDatabaseFirstNameLastNameAndNickName( $_SESSION['idOfLoggedInUser'] );
+      return '
+         <div style="background-image: url( images/coverPhoto.jpg ); background-size: cover;" class="lightBlueContainerWithBorder disappearsOnSmallScreens whiteText">' .
+            getMarkupToDisplayUserNamesOfUser( $_SESSION['idOfRequiredUser'] ) . '
+            <div>' .
+               getMarkupToIndicateFriendRelationshipBetweenLoggedInUserAndRequiredUser( $_SESSION['idOfRequiredUser'] ) . '
+            </div>
+         </div>
+
+         <div class="disappearsOnLargeScreens blackText">' .
+            getMarkupToDisplayUserNamesOfUser( $_SESSION['idOfRequiredUser'] ) . '
+            <div>' .
+               getMarkupToIndicateFriendRelationshipBetweenLoggedInUserAndRequiredUser( $_SESSION['idOfRequiredUser'] ) . '
+            </div>
+         </div>
+
+         <nav class="blueHorizontalNavigationLinksWithBorders">
+            <ul>
+               <li><a href="profileOfUser.php" ' . ( $urlOfCurrentProfilePage == 'profileOfUser.php' ? 'id="currentPage"' : '' ) . '>Timeline</a></li>
+               <li><a href="aboutUser.php" ' . ( $urlOfCurrentProfilePage == 'aboutUser.php' ? 'id="currentPage"' : '' ) . '>About</a></li>
+               <li><a href="friendsOfUser.php" ' . ( $urlOfCurrentProfilePage == 'friendsOfUser.php' ? 'id="currentPage"' : '' ) . '>Friends</a></li>
+            </ul>
+         </nav>
+      ';
+   }
+
+
+   function getMarkupToDisplayUserNamesOfUser( $idOfUser )
+   {
+      $names = retrieveFromDatabaseFirstNameLastNameAndNickName( $idOfUser );
 
       if ( doesNotExistInDatabase( $names ) ) {
          return '
-            <div class="userNames">Could not find user\'s name in database.</div>';
+            <div class="bigLeftMargin massiveTopMargin">Could not find user\'s name in database.</div>';
       }
 
       $markup = '
-            <div class="userNames">
-               <h1 class="properNames">'  .  $names['first_name']  .  ' '  .  $names['last_name']  .  '</h1>
-      ';
+            <div class="bigLeftMarginOnLargeScreens massiveTopMarginOnLargeScreens bigBottomMarginOnLargeScreens">
+               <h1 class="bigSizedText">'  .  $names['first_name']  .  ' '  .  $names['last_name']  .  '</h1>';
 
       if ( $names['nick_name'] != NULL ) {
          $markup .= '
-               <h2 class="nickName">('  .  $names['nick_name']  .  ')</h2>
-         ';
+               <h2 class="bigSizedText">('  .  $names['nick_name']  .  ')</h2>';
       }
 
       $markup .= '
-            </div>  <!-- end div.userNames -->
+            </div>
       ';
 
       return $markup;
+   }
+
+
+   function getMarkupToDisplayFirstNameAndLastNameOfRequiredUser( $idOfRequiredUser )
+   {
+      $names = retrieveFromDatabaseFirstNameLastNameAndNickName( $idOfRequiredUser );
+
+      if ( doesNotExistInDatabase( $names ) ) {
+         return '';
+      }
+      else {
+         return $names['first_name']  .  ' '  .  $names['last_name'];
+      }
    }
 
 
@@ -1072,12 +1114,12 @@
       $dayOfBirth = $birthdayDetails['day_of_birth'];
 
       if ( doesNotExistInDatabase( $dayOfBirth ) ) {
-         return getMarkupToShowThatProfileDetailsDoNotExist( 'Birthday', 'editBirthdayDetails.php' );
+         return getMarkupToShowThatProfileDetailsOfLoggedInUserDoNotExist( 'Birthday', 'editBirthdayDetails.php' );
       }
       else {
          $formattedBirthdayDetails = formatBirthdayDetails( $birthdayDetails );
 
-         return getMarkupToDisplayProfileDetails( 'Birthday', 
+         return getMarkupToDisplayProfileDetailsOfLoggedInUser( 'Birthday', 
             'editBirthdayDetails.php', $formattedBirthdayDetails );
       }
 
@@ -1090,13 +1132,13 @@
       $idOfCurrentCity = $rowContainingIdOfCurrentCity['id_of_current_city'];
 
       if ( doesNotExistInDatabase( $idOfCurrentCity ) ) {
-         return getMarkupToShowThatProfileDetailsDoNotExist( 'Current City', 'editCurrentCityDetails.php' );
+         return getMarkupToShowThatProfileDetailsOfLoggedInUserDoNotExist( 'Current City', 'editCurrentCityDetails.php' );
       }
       else {
          $rowContainingCurrentCityDetails = retrieveFromDatabaseCityDetails( $idOfCurrentCity );
          $formattedCurrentCityDetails = formatCityDetails( $rowContainingCurrentCityDetails );
 
-         return getMarkupToDisplayProfileDetails( 'Current City',
+         return getMarkupToDisplayProfileDetailsOfLoggedInUser( 'Current City',
             'editCurrentCityDetails.php', $formattedCurrentCityDetails );
       }
 
@@ -1109,13 +1151,13 @@
       $idOfHometown = $rowContainingIdOfHometown['id_of_hometown'];
 
       if ( doesNotExistInDatabase( $idOfHometown ) ) {
-         return getMarkupToShowThatProfileDetailsDoNotExist( 'Hometown', 'editHometownDetails.php' );
+         return getMarkupToShowThatProfileDetailsOfLoggedInUserDoNotExist( 'Hometown', 'editHometownDetails.php' );
       }
       else {
          $rowContainingHometownDetails = retrieveFromDatabaseCityDetails( $idOfHometown );
          $formattedHometownDetails = formatCityDetails( $rowContainingHometownDetails );
 
-         return getMarkupToDisplayProfileDetails( 'Hometown',
+         return getMarkupToDisplayProfileDetailsOfLoggedInUser( 'Hometown',
             'editHometownDetails.php', $formattedHometownDetails );
       } 
 
@@ -1128,13 +1170,13 @@
       $idOfGender = $rowContainingIdOfGender['id_of_gender'];
 
       if ( doesNotExistInDatabase( $idOfGender ) ) {
-         return getMarkupToShowThatProfileDetailsDoNotExist( 'Gender', 'editGenderDetails.php' );
+         return getMarkupToShowThatProfileDetailsOfLoggedInUserDoNotExist( 'Gender', 'editGenderDetails.php' );
       }
       else {
          $rowContainingGenderDetails = retrieveFromDatabaseGenderDetails( $idOfGender );
          $formattedGenderDetails = formatGenderDetails( $rowContainingGenderDetails );
 
-         return getMarkupToDisplayProfileDetails( 'Gender', 
+         return getMarkupToDisplayProfileDetailsOfLoggedInUser( 'Gender', 
             'editGenderDetails.php', $formattedGenderDetails );
       }
 
@@ -1147,14 +1189,14 @@
          retrieveFromDatabaseAndReturnInArrayIdOfAllLanguagesSpoken( $_SESSION['idOfLoggedInUser'] );
 
       if ( doesNotExistInDatabase( $idOfAllLanguagesSpoken ) ) {
-         return getMarkupToShowThatProfileDetailsDoNotExist( 'Languages Spoken', 'editLanguagesSpokenDetails.php' );
+         return getMarkupToShowThatProfileDetailsOfLoggedInUserDoNotExist( 'Languages Spoken', 'editLanguagesSpokenDetails.php' );
       }
       else {
          $namesOfAllLanguagesSpoken = 
             retrieveFromDatabaseAndReturnInArrayNamesOfAllLanguagesSpoken( $idOfAllLanguagesSpoken );
          $formattedLanguageDetails = formatLanguageDetails( $namesOfAllLanguagesSpoken );
 
-         return getMarkupToDisplayProfileDetails( 'Languages Spoken', 
+         return getMarkupToDisplayProfileDetailsOfLoggedInUser( 'Languages Spoken', 
             'editLanguagesSpokenDetails.php', $formattedLanguageDetails );
       }
 
@@ -1168,13 +1210,13 @@
       $favouriteQuoteDetails = $rowContainingFavouriteQuoteDetails['favourite_quotes'];
 
       if ( doesNotExistInDatabase( $favouriteQuoteDetails ) ) {
-         return getMarkupToShowThatProfileDetailsDoNotExist( 'Favourite Quotes',
+         return getMarkupToShowThatProfileDetailsOfLoggedInUserDoNotExist( 'Favourite Quotes',
             'editFavouriteQuoteDetails.php' );
       }
       else {
          $formattedFavouriteQuoteDetails = formatFavouriteQuoteDetails( $rowContainingFavouriteQuoteDetails );
 
-         return getMarkupToDisplayProfileDetails( 'Favourite Quotes', 
+         return getMarkupToDisplayProfileDetailsOfLoggedInUser( 'Favourite Quotes', 
             'editFavouriteQuoteDetails.php', $formattedFavouriteQuoteDetails );
       }
 
@@ -1187,12 +1229,12 @@
       $aboutMeDetails = $rowContainingAboutMeDetails['about_me'];
 
       if ( doesNotExistInDatabase( $aboutMeDetails ) ) {
-         return getMarkupToShowThatProfileDetailsDoNotExist( 'About Me', 'editAboutMeDetails.php' );
+         return getMarkupToShowThatProfileDetailsOfLoggedInUserDoNotExist( 'About Me', 'editAboutMeDetails.php' );
       }
       else {
          $formattedAboutMeDetails = formatAboutMeDetails( $rowContainingAboutMeDetails );
 
-         return getMarkupToDisplayProfileDetails( 'About Me', 
+         return getMarkupToDisplayProfileDetailsOfLoggedInUser( 'About Me', 
             'editAboutMeDetails.php', $formattedAboutMeDetails );
       }
 
@@ -1205,11 +1247,11 @@
       $phoneNumberDetails = $rowContainingPhoneNumberDetails['phone_number'];
 
       if ( doesNotExistInDatabase( $phoneNumberDetails ) ) {
-         return getMarkupToShowThatProfileDetailsDoNotExist( 'Phone Number', 'editPhoneNumberDetails.php' );
+         return getMarkupToShowThatProfileDetailsOfLoggedInUserDoNotExist( 'Phone Number', 'editPhoneNumberDetails.php' );
       }
       else {
          $formattedPhoneNumberDetails = formatPhoneNumberDetails( $rowContainingPhoneNumberDetails );
-         return getMarkupToDisplayProfileDetails( 'Phone Number', 
+         return getMarkupToDisplayProfileDetailsOfLoggedInUser( 'Phone Number', 
             'editPhoneNumberDetails.php', $formattedPhoneNumberDetails );
       }
 
@@ -1222,48 +1264,180 @@
       $emailAddressDetails = $rowContainingEmailAddressDetails['email_address'];
 
       if ( doesNotExistInDatabase( $emailAddressDetails ) ) {
-         return getMarkupToShowThatProfileDetailsDoNotExist( 'Email Address', 'editEmailAddressDetails.php' );
+         return getMarkupToShowThatProfileDetailsOfLoggedInUserDoNotExist( 'Email Address', 'editEmailAddressDetails.php' );
       }
       else {
          $formattedEmailAddressDetails = formatEmailAddressDetails( $rowContainingEmailAddressDetails );
-         return getMarkupToDisplayProfileDetails( 'Email Address', 
+         return getMarkupToDisplayProfileDetailsOfLoggedInUser( 'Email Address', 
             'editEmailAddressDetails.php', $formattedEmailAddressDetails );
       }
 
    }
 
 
-   function getMarkupToShowThatProfileDetailsDoNotExist( $title, $urlOfEditLink )
+   function getMarkupToShowThatProfileDetailsOfLoggedInUserDoNotExist( $title, $urlOfEditLink )
    {
       return '
-         <section class="userDetail" id="' . $title . '">
-            <header class="headerForUserDetail">
-               <h2 class="headingForUserDetail">' . $title . '</h2>
+
+         <section class="smallTopMargin" id="' . $title . '">
+            <header class="lightBlueContainerWithBorder">
+               <h2 class="moderateSizedText">' . $title . '</h2>
             </header>
 
-            <p class="bodyForUserDetail">
+            <p class="whiteContainerWithBorder bigTopPadding bigBottomPadding">
                No ' . strtolower( $title ) . ' details existing. 
                <a href="' . $urlOfEditLink . '">Click here to add ' . strtolower( $title ) . ' details.</a>
             </p>
-         </section>
-      ';
+         </section>';
    }
 
 
-   function getMarkupToDisplayProfileDetails( $title, $urlOfEditPage, $details )
+   function getMarkupToDisplayProfileDetailsOfLoggedInUser( $title, $urlOfEditPage, $details )
    {
       return '
-         <section class="userDetail" id="' . $title . '">
-            <header class="headerForUserDetail">
-               <h2 class="headingForUserDetail">' . $title . '</h2>
-               <p class="editLinkForUserDetail"><a href="' . $urlOfEditPage . '">Edit</a></p>
+
+         <section class="smallTopMargin" id="' . $title . '">
+            <header class="lightBlueContainerWithBorder">
+               <h2 class="moderateSizedText floatedToLeft">' . $title . '</h2>
+               <p class="floatedToRight"><a href="' . $urlOfEditPage . '">Edit</a></p>
             </header>
 
-            <p class="bodyForUserDetail">
+            <p class="whiteContainerWithBorder bigTopPadding bigBottomPadding">
                ' .  $details . '
             </p>
-         </section>
-      ';
+         </section>';
+   }
+
+
+   function getMarkupToDisplayBirthdayDetailsOfRequiredUser( $idOfRequiredUser )
+   {
+      $birthdayDetails = retrieveFromDatabaseBirthdayDetails( $idOfRequiredUser );
+      $dayOfBirth = $birthdayDetails['day_of_birth'];
+
+      if ( doesNotExistInDatabase( $dayOfBirth ) ) {
+         return '';
+      }
+      else {
+         $formattedBirthdayDetails = formatBirthdayDetails( $birthdayDetails );
+         return getMarkupToDisplayProfileDetailsOfUserThatIsNotLoggedIn( 'Birthday', $formattedBirthdayDetails );
+      }
+   }
+
+
+   function getMarkupToDisplayCurrentCityDetailsOfRequiredUser( $idOfRequiredUser )
+   {
+      $rowContainingIdOfCurrentCity = retrieveFromDatabaseIdOfCurrentCity( $idOfRequiredUser );
+      $idOfCurrentCity = $rowContainingIdOfCurrentCity['id_of_current_city'];
+
+      if ( doesNotExistInDatabase( $idOfCurrentCity ) ) {
+         return '';
+      }
+      else {
+         $rowContainingCurrentCityDetails = retrieveFromDatabaseCityDetails( $idOfCurrentCity );
+         $formattedCurrentCityDetails = formatCityDetails( $rowContainingCurrentCityDetails );
+         return 
+            getMarkupToDisplayProfileDetailsOfUserThatIsNotLoggedIn( 'Current City', $formattedCurrentCityDetails );
+      }
+
+   }
+
+
+   function getMarkupToDisplayHometownDetailsOfRequiredUser( $idOfRequiredUser )
+   {
+      $rowContainingIdOfHometown = retrieveFromDatabaseIdOfHometown( $idOfRequiredUser );
+      $idOfHometown = $rowContainingIdOfHometown['id_of_hometown'];
+
+      if ( doesNotExistInDatabase( $idOfHometown ) ) {
+         return '';
+      }
+      else {
+         $rowContainingHometownDetails = retrieveFromDatabaseCityDetails( $idOfHometown );
+         $formattedHometownDetails = formatCityDetails( $rowContainingHometownDetails );
+         return getMarkupToDisplayProfileDetailsOfUserThatIsNotLoggedIn( 'Hometown', $formattedHometownDetails );
+      } 
+
+   }
+
+
+   function getMarkupToDisplayGenderDetailsOfRequiredUser( $idOfRequiredUser )
+   {
+      $rowContainingIdOfGender = retrieveFromDatabaseIdOfGender( $idOfRequiredUser );
+      $idOfGender = $rowContainingIdOfGender['id_of_gender'];
+
+      if ( doesNotExistInDatabase( $idOfGender ) ) {
+         return '';
+      }
+      else {
+         $rowContainingGenderDetails = retrieveFromDatabaseGenderDetails( $idOfGender );
+         $formattedGenderDetails = formatGenderDetails( $rowContainingGenderDetails );
+         return getMarkupToDisplayProfileDetailsOfUserThatIsNotLoggedIn( 'Gender', $formattedGenderDetails );
+      }
+   }
+
+
+   function getMarkupToDisplayLanguageDetailsOfRequiredUser( $idOfRequiredUser )
+   {
+      $idOfAllLanguagesSpoken = 
+         retrieveFromDatabaseAndReturnInArrayIdOfAllLanguagesSpoken( $idOfRequiredUser );
+
+      if ( doesNotExistInDatabase( $idOfAllLanguagesSpoken ) ) {
+         return '';
+      }
+      else {
+         $namesOfAllLanguagesSpoken = 
+            retrieveFromDatabaseAndReturnInArrayNamesOfAllLanguagesSpoken( $idOfAllLanguagesSpoken );
+         $formattedLanguageDetails = formatLanguageDetails( $namesOfAllLanguagesSpoken );
+         return
+            getMarkupToDisplayProfileDetailsOfUserThatIsNotLoggedIn( 'Languages Spoken', $formattedLanguageDetails );
+      }
+   }
+
+
+   function getMarkupToDisplayFavouriteQuoteDetailsOfRequiredUser( $idOfRequiredUser )
+   {
+      $rowContainingFavouriteQuoteDetails = retrieveFromDatabaseFavouriteQuoteDetails( $idOfRequiredUser );
+      $favouriteQuoteDetails = $rowContainingFavouriteQuoteDetails['favourite_quotes'];
+
+      if ( doesNotExistInDatabase( $favouriteQuoteDetails ) ) {
+         return '';
+      }
+      else {
+         $formattedFavouriteQuoteDetails = formatFavouriteQuoteDetails( $rowContainingFavouriteQuoteDetails );
+         return getMarkupToDisplayProfileDetailsOfUserThatIsNotLoggedIn( 
+            'Favourite Quotes', $formattedFavouriteQuoteDetails );
+      }
+   }
+
+
+   function getMarkupToDisplayAboutMeDetailsOfRequiredUser( $idOfRequiredUser )
+   {
+      $rowContainingAboutMeDetails = retrieveFromDatabaseAboutMeDetails( $idOfRequiredUser );
+      $aboutMeDetails = $rowContainingAboutMeDetails['about_me'];
+
+      if ( doesNotExistInDatabase( $aboutMeDetails ) ) {
+         return '';
+      }
+      else {
+         $formattedAboutMeDetails = formatAboutMeDetails( $rowContainingAboutMeDetails );
+
+         return getMarkupToDisplayProfileDetailsOfUserThatIsNotLoggedIn( 'About Me', $formattedAboutMeDetails );
+      }
+   }
+
+
+   function getMarkupToDisplayProfileDetailsOfUserThatIsNotLoggedIn( $title, $details )
+   {
+      return '
+
+         <section class="smallTopMargin">
+            <header class="lightBlueContainerWithBorder">
+               <h2 class="moderateSizedText">' . $title . '</h2>
+            </header>
+
+            <p class="whiteContainerWithBorder bigTopPadding bigBottomPadding">
+               ' .  $details . '
+            </p>
+         </section>';
    }
 
 
@@ -1273,23 +1447,28 @@
 
       return
          getMarkupForTheOpeningTagOfFormElement() .
+            getMarkupForTheOpeningTagOfNestedDivElement() .
+               getMarkupForTheOpeningTagOfLabelElement( 'monthOfBirth' ) .
+                  'Month of birth:' .
+               getMarkupForTheClosingTagOfLabelElement() .
+               getMarkupForSelectElementForSelectingMonthOfBirth( $birthdayDetails['month_of_birth'] ) .
+            getMarkupForTheClosingTagOfNestedDivElement() .
 
-         getMarkupForTheOpeningTagOfLabelElementInEditForms() . '
-               Month of birth:' .
-         getMarkupForSelectElementForSelectingMonthOfBirth( $birthdayDetails['month_of_birth'] ) .
-         getMarkupForTheClosingTagOfLabelElementInEditForms() .
+            getMarkupForTheOpeningTagOfNestedDivElement() .
+               getMarkupForTheOpeningTagOfLabelElement( 'dayOfBirth' ) .
+                  'Day of birth:' .
+               getMarkupForTheClosingTagOfLabelElement() .
+               getMarkupForSelectElementForSelectingDayOfBirth( $birthdayDetails['day_of_birth'] ) .
+            getMarkupForTheClosingTagOfNestedDivElement() .
 
-         getMarkupForTheOpeningTagOfLabelElementInEditForms() . '
-               Day of birth:' .
-         getMarkupForSelectElementForSelectingDayOfBirth( $birthdayDetails['day_of_birth'] ) .
-         getMarkupForTheClosingTagOfLabelElementInEditForms() .
+            getMarkupForTheOpeningTagOfNestedDivElement() .
+               getMarkupForTheOpeningTagOfLabelElement( 'yearOfBirth' ) .
+                  'Year of birth:' .
+               getMarkupForTheClosingTagOfLabelElement() .
+               getMarkupForSelectElementForSelectingYearOfBirth( $birthdayDetails['year_of_birth'] ) .
+            getMarkupForTheClosingTagOfNestedDivElement() .
 
-         getMarkupForTheOpeningTagOfLabelElementInEditForms() . '
-               Year of birth:' .
-         getMarkupForSelectElementForSelectingYearOfBirth( $birthdayDetails['year_of_birth'] ) .
-         getMarkupForTheClosingTagOfLabelElementInEditForms() .
-
-         getMarkupForSaveButtonAndCancelButton() .
+            getMarkupForSaveButtonAndCancelButton() .
          getMarkupForTheClosingTagOfFormElement();
    }
 
@@ -1311,23 +1490,29 @@
    {
       return
          getMarkupForTheOpeningTagOfFormElement() .
-            getMarkupForTheOpeningTagOfLabelElementInEditForms() . '
-               Month of birth:' .
+            getMarkupForTheOpeningTagOfNestedDivElement() .
+               getMarkupForTheOpeningTagOfLabelElement( 'monthOfBirth' ) .
+                  'Month of birth:' .
+               getMarkupForTheClosingTagOfLabelElement() .
                getMarkupForSelectElementForSelectingMonthOfBirth( $_POST['monthOfBirth'] ) .
                getMarkupForErrorMessageIfValueIsInvalid( $_POST['monthOfBirth'], 'Invalid&nbsp;month.' ) .
-            getMarkupForTheClosingTagOfLabelElementInEditForms() .
+            getMarkupForTheClosingTagOfNestedDivElement() .
 
-            getMarkupForTheOpeningTagOfLabelElementInEditForms() . '
-               Day of brth:' .
+            getMarkupForTheOpeningTagOfNestedDivElement() .
+               getMarkupForTheOpeningTagOfLabelElement( 'dayOfBirth' ) .
+                  'Day of birth:' .
+               getMarkupForTheClosingTagOfLabelElement() .
                getMarkupForSelectElementForSelectingDayOfBirth( $_POST['dayOfBirth'] ) .
                getMarkupForErrorMessageIfValueIsInvalid( $_POST['dayOfBirth'], 'Invalid&nbsp;day.' ) .
-            getMarkupForTheClosingTagOfLabelElementInEditForms() .
+            getMarkupForTheClosingTagOfNestedDivElement() .
 
-            getMarkupForTheOpeningTagOfLabelElementInEditForms() . '
-               Year of birth:' .
+            getMarkupForTheOpeningTagOfNestedDivElement() .
+               getMarkupForTheOpeningTagOfLabelElement( 'yearOfBirth' ) .
+                  'Year of birth:' .
+               getMarkupForTheClosingTagOfLabelElement() .
                getMarkupForSelectElementForSelectingYearOfBirth( $_POST['yearOfBirth'] ) .
                getMarkupForErrorMessageIfValueIsInvalid( $_POST['yearOfBirth'], 'Invalid&nbsp;year.' ) .
-            getMarkupForTheClosingTagOfLabelElementInEditForms() .
+            getMarkupForTheClosingTagOfNestedDivElement() .
 
             getMarkupForSaveButtonAndCancelButton() .
          getMarkupForTheClosingTagOfFormElement();
@@ -1338,29 +1523,32 @@
    {
       return
          getMarkupForTheOpeningTagOfFormElement() .
-            getMarkupForTheOpeningTagOfLabelElementInEditForms() . '
-               Month of birth:' .
+            getMarkupForTheOpeningTagOfNestedDivElement() .
+               getMarkupForTheOpeningTagOfLabelElement( 'monthOfBirth' ) .
+                  'Month of birth:' .
+               getMarkupForTheClosingTagOfLabelElement() .
                getMarkupForSelectElementForSelectingMonthOfBirth( $_POST['monthOfBirth'] ) .
-            getMarkupForTheClosingTagOfLabelElementInEditForms() .
+            getMarkupForTheClosingTagOfNestedDivElement() .
 
-            getMarkupForTheOpeningTagOfLabelElementInEditForms() . '
-               Day of birth:' .
+            getMarkupForTheOpeningTagOfNestedDivElement() .
+               getMarkupForTheOpeningTagOfLabelElement( 'dayOfBirth' ) .
+                  'Day of birth:' .
+               getMarkupForTheClosingTagOfLabelElement() .
                getMarkupForSelectElementForSelectingDayOfBirth( $_POST['dayOfBirth'] ) .
-            getMarkupForTheClosingTagOfLabelElementInEditForms() .
+            getMarkupForTheClosingTagOfNestedDivElement() .
 
-            getMarkupForTheOpeningTagOfLabelElementInEditForms() . '
-               Year of birth:' .
+            getMarkupForTheOpeningTagOfNestedDivElement() .
+               getMarkupForTheOpeningTagOfLabelElement( 'yearOfBirth' ) .
+                  'Year of birth:' .
+               getMarkupForTheClosingTagOfLabelElement() .
                getMarkupForSelectElementForSelectingYearOfBirth( $_POST['yearOfBirth'] ) .
-            getMarkupForTheClosingTagOfLabelElementInEditForms() . 
-
-            '
-            <span class="errorMessageInEditForm">
-               Invalid Date: <br />
-               In ' . $year . ', there was no ' . convertToNameOfMonth( $month ) . ' ' . $day . '.<br />
-               Please select a valid date.
-            </span>
+            getMarkupForTheClosingTagOfNestedDivElement() . '
+            <div class="errorMessage">
+               <p>Invalid Date:</p>
+               <p>In ' . $_POST['yearOfBirth'] . ', there was no ' . convertToNameOfMonth( $_POST['monthOfBirth'] ) . ' ' . $_POST['dayOfBirth'] . '.</p>
+               <p>Please select a valid date.</p>
+            </div>
             ' .
-
             getMarkupForSaveButtonAndCancelButton() .
          getMarkupForTheClosingTagOfFormElement();
    }
@@ -1369,10 +1557,10 @@
    function getMarkupForSelectElementForSelectingMonthOfBirth( $defaultMonthOfBirth )
    {
       $selectElement = '
-               <select name="monthOfBirth">
+               <select id="monthOfBirth" name="monthOfBirth">
                   <option value="' . INVALID . '">----</option>';
 
-      for ( $month = 1; $month <= 12; $month++ ) {
+      for ( $month = JANUARY; $month <= DECEMBER; $month++ ) {
 
          if ( $month == $defaultMonthOfBirth ) {
             $selectElement .= '
@@ -1395,7 +1583,7 @@
    function getMarkupForSelectElementForSelectingDayOfBirth( $defaultDayOfBirth )
    {
       $selectElement = '
-               <select name="dayOfBirth">
+               <select id="dayOfBirth" name="dayOfBirth">
                   <option value="' . INVALID . '">----</option>';
 
       for ( $day = 1; $day <= 31; $day++ ) {
@@ -1421,7 +1609,7 @@
    function getMarkupForSelectElementForSelectingYearOfBirth( $defaultYearOfBirth )
    {
       $selectElement = '
-               <select name="yearOfBirth">
+               <select id="yearOfBirth" name="yearOfBirth">
                   <option value="' . INVALID . '">----</option>';
 
       for ( $year = EARLIEST_YEAR; $year <= CURRENT_YEAR; $year++ ) {
@@ -1461,15 +1649,19 @@
 
       return
          getMarkupForTheOpeningTagOfFormElement() .
-            getMarkupForTheOpeningTagOfLabelElementInEditForms() . '
-               Name of city:' .
+            getMarkupForTheOpeningTagOfNestedDivElement() .
+               getMarkupForTheOpeningTagOfLabelElement( 'nameOfCity' ) .
+                  'Name of city:' .
+               getMarkupForTheClosingTagOfLabelElement() .
                getMarkupForInputElementForEnteringNameOfCity( $defaultNameOfCity ) .
-            getMarkupForTheClosingTagOfLabelElementInEditForms() .
+            getMarkupForTheClosingTagOfNestedDivElement() .
 
-            getMarkupForTheOpeningTagOfLabelElementInEditForms() . '
-               Name of country:' .
+            getMarkupForTheOpeningTagOfNestedDivElement() .
+               getMarkupForTheOpeningTagOfLabelElement( 'nameOfCountry' ) .
+                  'Name of country:' .
+               getMarkupForTheClosingTagOfLabelElement() .
                getMarkupForInputElementForEnteringNameOfCountry( $defaultNameOfCountry ) .
-            getMarkupForTheClosingTagOfLabelElementInEditForms() .
+            getMarkupForTheClosingTagOfNestedDivElement() .
 
             getMarkupForSaveButtonAndCancelButton() .
          getMarkupForTheClosingTagOfFormElement();
@@ -1492,15 +1684,19 @@
 
       return
          getMarkupForTheOpeningTagOfFormElement() .
-            getMarkupForTheOpeningTagOfLabelElementInEditForms() . '
-               Name of city:' .
+            getMarkupForTheOpeningTagOfNestedDivElement() .
+               getMarkupForTheOpeningTagOfLabelElement( 'nameOfCity' ) .
+                  'Name of city:' .
+               getMarkupForTheClosingTagOfLabelElement() .
                getMarkupForInputElementForEnteringNameOfCity( $defaultNameOfCity ) .
-            getMarkupForTheClosingTagOfLabelElementInEditForms() .
+            getMarkupForTheClosingTagOfNestedDivElement() .
 
-            getMarkupForTheOpeningTagOfLabelElementInEditForms() . '
-               Name of country:' .
+            getMarkupForTheOpeningTagOfNestedDivElement() .
+               getMarkupForTheOpeningTagOfLabelElement( 'nameOfCountry' ) .
+                  'Name of country:' .
+               getMarkupForTheClosingTagOfLabelElement() .
                getMarkupForInputElementForEnteringNameOfCountry( $defaultNameOfCountry ) .
-            getMarkupForTheClosingTagOfLabelElementInEditForms() .
+            getMarkupForTheClosingTagOfNestedDivElement() .
 
             getMarkupForSaveButtonAndCancelButton() .
          getMarkupForTheClosingTagOfFormElement();
@@ -1515,19 +1711,26 @@
 
    function getMarkupForEditCityDetailsFormAndShowThatUserInputtedInvalidDetails()
    {
+
       return
          getMarkupForTheOpeningTagOfFormElement() .
-            getMarkupForTheOpeningTagOfLabelElementInEditForms() . '
-               Name of city:' .
+            getMarkupForTheOpeningTagOfNestedDivElement() .
+               getMarkupForTheOpeningTagOfLabelElement( 'nameOfCity' ) .
+                  'Name of city:' .
+               getMarkupForTheClosingTagOfLabelElement() .
                getMarkupForInputElementForEnteringNameOfCity( $_POST['nameOfCity'] ) .
                getMarkupForErrorMessageIfValueIsEmpty( $_POST['nameOfCity'], 'Enter the name of your city.' ) .
-            getMarkupForTheClosingTagOfLabelElementInEditForms() .
+               getMarkupForErrorMessageIfValueConsistsOfSpacesOnly( $_POST['nameOfCity'], 'Invalid name of city' ) .
+            getMarkupForTheClosingTagOfNestedDivElement() .
 
-            getMarkupForTheOpeningTagOfLabelElementInEditForms() . '
-               Name of country:' .
+            getMarkupForTheOpeningTagOfNestedDivElement() .
+               getMarkupForTheOpeningTagOfLabelElement( 'nameOfCountry' ) .
+                  'Name of country:' .
+               getMarkupForTheClosingTagOfLabelElement() .
                getMarkupForInputElementForEnteringNameOfCountry( $_POST['nameOfCountry'] ) .
                getMarkupForErrorMessageIfValueIsEmpty( $_POST['nameOfCountry'], 'Enter the name of your country.' ) .
-            getMarkupForTheClosingTagOfLabelElementInEditForms() .
+               getMarkupForErrorMessageIfValueConsistsOfSpacesOnly( $_POST['nameOfCountry'], 'Invalid name of country' ) .
+            getMarkupForTheClosingTagOfNestedDivElement() .
 
             getMarkupForSaveButtonAndCancelButton() .
          getMarkupForTheClosingTagOfFormElement();
@@ -1537,16 +1740,14 @@
    function getMarkupForInputElementForEnteringNameOfCity( $defaultNameOfCity )
    {
       return '
-               <input type="text" name="nameOfCity" value="' . $defaultNameOfCity . '" />
-      ';
+               <input type="text" id="nameOfCity" name="nameOfCity" value="' . $defaultNameOfCity . '" />';
    }
 
 
    function getMarkupForInputElementForEnteringNameOfCountry( $defaultNameOfCountry )
    {
       return '
-               <input type="text" name="nameOfCountry" value="' . $defaultNameOfCountry . '" />
-      ';
+               <input type="text" id="nameOfCountry" name="nameOfCountry" value="' . $defaultNameOfCountry . '" />';
    }
 
 
@@ -1564,15 +1765,22 @@
 
       return
          getMarkupForTheOpeningTagOfFormElement() . '
-            <p>Please, select your gender:</p>' .
+            <p>Please, select your gender:</p>
+            ' .
 
-            getMarkupForTheOpeningTagOfLabelElementInEditForms() .
+            getMarkupForTheOpeningTagOfNestedDivElement() .
                getMarkupForRadioButtonRepresentingMaleGender( $defaultGender ) .
-            getMarkupForTheClosingTagOfLabelElementInEditForms() .
+               getMarkupForTheOpeningTagOfLabelElement( 'maleGender' ) .
+                  'Male' .
+               getMarkupForTheClosingTagOfLabelElement() .
+            getMarkupForTheClosingTagOfNestedDivElement() .
 
-            getMarkupForTheOpeningTagOfLabelElementInEditForms() .
+            getMarkupForTheOpeningTagOfNestedDivElement() .
                getMarkupForRadioButtonRepresentingFemaleGender( $defaultGender ) .
-            getMarkupForTheClosingTagOfLabelElementInEditForms() .
+               getMarkupForTheOpeningTagOfLabelElement( 'femaleGender' ) .
+                  'Female' .
+               getMarkupForTheClosingTagOfLabelElement() .
+            getMarkupForTheClosingTagOfNestedDivElement() .
 
             getMarkupForSaveButtonAndCancelButton() .
          getMarkupForTheClosingTagOfFormElement();
@@ -1589,19 +1797,24 @@
    {
       return
          getMarkupForTheOpeningTagOfFormElement() . '
-            <p>Please, select your gender:</p>' .
+            <p>Please, select your gender:</p>
+            ' .
 
-            getMarkupForTheOpeningTagOfLabelElementInEditForms() .
-               getMarkupForRadioButtonRepresentingMaleGender( $defaultGender ) .
-            getMarkupForTheClosingTagOfLabelElementInEditForms() .
+            getMarkupForTheOpeningTagOfNestedDivElement() .
+               getMarkupForRadioButtonRepresentingMaleGender( NULL ) .
+               getMarkupForTheOpeningTagOfLabelElement( 'maleGender' ) .
+                  'Male' .
+               getMarkupForTheClosingTagOfLabelElement() .
+            getMarkupForTheClosingTagOfNestedDivElement() .
 
-            getMarkupForTheOpeningTagOfLabelElementInEditForms() .
-               getMarkupForRadioButtonRepresentingFemaleGender( $defaultGender ) .
-            getMarkupForTheClosingTagOfLabelElementInEditForms() .
-
-            '
-            <span class="errorMessageInEditForm">Please select your gender</span>
-            <br/>' .
+            getMarkupForTheOpeningTagOfNestedDivElement() .
+               getMarkupForRadioButtonRepresentingFemaleGender( NULL ) .
+               getMarkupForTheOpeningTagOfLabelElement( 'femaleGender' ) .
+                  'Female' .
+               getMarkupForTheClosingTagOfLabelElement() .
+            getMarkupForTheClosingTagOfNestedDivElement() . '
+            <span class="errorMessage">You did not select any gender.</span>
+            ' .
 
             getMarkupForSaveButtonAndCancelButton() .
          getMarkupForTheClosingTagOfFormElement();
@@ -1613,11 +1826,11 @@
 
       if ( $defaultGender == 'male' ) {
          return '
-               <input type="radio" name="genderDetails" value="male" checked/> Male';
+               <input type="radio" id="maleGender" name="genderDetails" value="male" checked/>';
       }
       else {
          return '
-               <input type="radio" name="genderDetails" value="male"/> Male';
+               <input type="radio" id="maleGender" name="genderDetails" value="male"/>';
       }
 
    }
@@ -1628,11 +1841,11 @@
 
       if ( $defaultGender == 'female' ) {
          return '
-               <input type="radio" name="genderDetails" value="female" checked/> Female';
+               <input type="radio" id="femaleGender" name="genderDetails" value="female" checked/>';
       }
       else {
          return '
-               <input type="radio" name="genderDetails" value="female"/> Female';
+               <input type="radio" id="femaleGender" name="genderDetails" value="female"/>';
       }
 
    }
@@ -1640,10 +1853,7 @@
 
    function getMarkupForAddNewLanguageForm()
    {
-      $allLanguagesSpokenByLoggedInUser = 
-         retrieveFromDatabaseAndReturnInArrayIdOfAllLanguagesSpoken( $_SESSION['idOfLoggedInUser'] );
-      $languageNumber = sizeof( $allLanguagesSpokenByLoggedInUser ) + 1;
-
+      $languageNumber = getLanguageNumberToBeAssociatedWithNewLanguage();
       return getMarkupForEditLanguageForm( NEW_LANGUAGE, $languageNumber );
    }
 
@@ -1710,7 +1920,7 @@
       }
 
       if ( $_POST['idOfLanguageToBeEdited'] == NEW_LANGUAGE ) {
-         $languageNumber = sizeof( $idOfLanguages );
+         $languageNumber = sizeof( $idOfLanguages ) + 1;
          $list .= getMarkupForEditLanguageForm( NEW_LANGUAGE, $languageNumber );
       }
 
@@ -1737,7 +1947,7 @@
       }
 
       if ( $_POST['idOfLanguageToBeEdited'] == NEW_LANGUAGE ) {
-         $languageNumber = sizeof( $idOfLanguages );
+         $languageNumber = sizeof( $idOfLanguages ) + 1;
          $list .= getMarkupForEditLanguageFormWithTextFieldForSpecifyingNameOfLanguage(
             NEW_LANGUAGE, $languageNumber );
       }
@@ -1748,25 +1958,26 @@
 
    function getMarkupThatDisplaysNameOfLanguageWithEditButtonAndDeleteButton( $idOfLanguage, $languageNumber )
    {
-      if ( detailsOfLanguageIsNotStoredInSESSION( $idOfLanguage ) ) {
+      $rowContainingNameOfLanguage = retrieveFromDatabaseNameOfLanguage( $idOfLanguage );
+
+      if ( doesNotExistInDatabase( $rowContainingNameOfLanguage ) ) {
          return '';
       }
-      else {
-         $index = getIndexOfPositionWhereLanguageIsStoredInSESSION( $idOfLanguage );
-         $nameOfLanguage = $_SESSION['nameOfLanguage' . $index];
 
-         return 
-            getMarkupForTheOpeningTagOfSectionElementForLanguageEntry() .
-               getMarkupForParagraphElementContainingLanguageNumber( $languageNumber ) .
+      $nameOfLanguage = $rowContainingNameOfLanguage['name_of_language'];
+      return 
+         getMarkupForTheOpeningTagOfSectionElementForLanguageEntry( $languageNumber ) .
+            getMarkupForParagraphElementContainingLanguageNumber( $languageNumber ) .
 
-               getMarkupForTheOpeningTagOfFormElement() .
-                  getMarkupForHiddenInputElementContainingIdOfLanguageToBeEdited( $idOfLanguage ) . '
-                  <span>' . capitalizeWordsThatShouldBeCapitalized( $nameOfLanguage ) . '</span>' .
-                  getMarkupForEditButtonAndDeleteButton() .
-               getMarkupForTheClosingTagOfFormElement() .
-            getMarkupForTheClosingTagOfSectionElement();
-      }
+            getMarkupForTheOpeningTagOfNestedFormElement( 'POST', 'editLanguagesSpokenDetails.php#' . $languageNumber ) .
+               getMarkupForHiddenInputElementContainingLanguageNumber( $languageNumber ) .
+               getMarkupForHiddenInputElementContainingIdOfLanguageToBeEdited( $idOfLanguage ) . '
 
+               <p>' . capitalizeWordsThatShouldBeCapitalized( $nameOfLanguage ) . '</p>' .
+
+               getMarkupForEditButtonAndDeleteButton() .
+            getMarkupForTheClosingTagOfNestedFormElement() .
+         getMarkupForTheClosingTagOfSectionElement();
    }
 
 
@@ -1776,15 +1987,16 @@
          ( isset( $_POST['idOfSelectedLanguage'] ) ? $_POST['idOfSelectedLanguage'] : $idOfLanguageToBeEdited );
 
       return 
-         getMarkupForTheOpeningTagOfSectionElementForLanguageEntry() .
+         getMarkupForTheOpeningTagOfSectionElementForLanguageEntry( $languageNumber ) .
             getMarkupForParagraphElementContainingLanguageNumber( $languageNumber ) .
 
-            getMarkupForTheOpeningTagOfFormElement() .
+            getMarkupForTheOpeningTagOfNestedFormElement( 'POST', 'editLanguagesSpokenDetails.php#' . $languageNumber ) .
+               getMarkupForHiddenInputElementContainingLanguageNumber( $languageNumber ) .
                getMarkupForHiddenInputElementContainingIdOfLanguageToBeEdited( $idOfLanguageToBeEdited ) .
                getMarkupForSelectElementForSelectingLanguage( $idOfLanguageToBePreSelected ) .
                getMarkupForErrorMessageIfValueIsInvalid( $idOfLanguageToBePreSelected, 'Please, select a valid language' ) .
                getMarkupForSaveButtonAndCancelButton() .
-            getMarkupForTheClosingTagOfFormElement() .
+            getMarkupForTheClosingTagOfNestedFormElement() .
          getMarkupForTheClosingTagOfSectionElement();
    }
 
@@ -1796,10 +2008,11 @@
       $nameOfNewLanguage = ( isset( $_POST['nameOfNewLanguage'] ) ? $_POST['nameOfNewLanguage'] : NULL );
 
       return 
-         getMarkupForTheOpeningTagOfSectionElementForLanguageEntry() .
+         getMarkupForTheOpeningTagOfSectionElementForLanguageEntry( $languageNumber ) .
             getMarkupForParagraphElementContainingLanguageNumber( $languageNumber ) .
 
-               getMarkupForTheOpeningTagOfFormElement() .
+               getMarkupForTheOpeningTagOfFormElement( 'POST' , 'editLanguagesSpokenDetails.php#' . $languageNumber ) .
+                  getMarkupForHiddenInputElementContainingLanguageNumber( $languageNumber ) .
                   getMarkupForHiddenInputElementContainingIdOfLanguageToBeEdited( $idOfLanguageToBeEdited ) .
                   getMarkupForSelectElementForSelectingLanguage( $idOfLanguageToBePreSelected ) .
                   getMarkupForTextFieldForSpecifyingNameOfLanguage( $nameOfNewLanguage ) .
@@ -1811,64 +2024,77 @@
    }
 
 
-   function getMarkupForTheOpeningTagOfSectionElementForLanguageEntry()
+   function getMarkupForTheOpeningTagOfSectionElementForLanguageEntry( $idValue )
    {
       return '
-         <section class="languageEntry">';
+         <section class="whiteContainerWithBorder fortyFivePercentWidthOnLargeScreens boxShadowEffect smallTopPadding smallBottomPadding smallRightMargin smallBottomMargin floatedToLeft" id="' . $idValue . '">';
    }
 
 
    function getMarkupForTheClosingTagOfSectionElement()
    {
       return '
-         </section>';
+         </section>
+      ';
    }
 
 
    function getMarkupForParagraphElementContainingLanguageNumber( $languageNumber )
    {
       return '
-            <p class="languageNumber">LANGUAGE ' . $languageNumber . ': </p>';
+            <p class="floatedToLeft blueText smallRightMargin">LANGUAGE ' . $languageNumber . ': </p>
+      ';
+   }
+
+
+   function getMarkupForHiddenInputElementContainingLanguageNumber( $languageNumber )
+   {
+      return '
+               <input type="hidden" name="languageNumber" value="' . $languageNumber . '" />';
    }
 
 
    function getMarkupForHiddenInputElementContainingIdOfLanguageToBeEdited( $idOfLanguageToBeEdited )
    {
       return '
-                  <input type="hidden" name="idOfLanguageToBeEdited" value="' . $idOfLanguageToBeEdited . '" />';
+               <input type="hidden" name="idOfLanguageToBeEdited" value="' . $idOfLanguageToBeEdited . '" />';
    }
 
 
    function getMarkupForSelectElementForSelectingLanguage( $idOfDefaultLanguage = NULL )
    {
       $selectElement = '
-                     <select name="idOfSelectedLanguage">
-                        <option value="' . INVALID . '">----</option>';
+
+               <select name="idOfSelectedLanguage">
+                  <option value="' . INVALID . '">----</option>';
 
       if ( $idOfDefaultLanguage == NONE_OF_THE_ABOVE ) {
          $selectElement .= '
-                        <option value="' . NONE_OF_THE_ABOVE . '" selected>My language is not listed</option>';
+                  <option value="' . NONE_OF_THE_ABOVE . '" selected>My language is not listed</option>';
       }
       else {
          $selectElement .= '
-                        <option value="' . NONE_OF_THE_ABOVE . '">My language is not listed</option>';
+                  <option value="' . NONE_OF_THE_ABOVE . '">My language is not listed</option>';
       }
 
-      for ( $index = 0; $index < $_SESSION['totalNumberOfLanguages']; $index++ ) {
+      $idOfLanguages = retrieveFromDatabaseAndReturnInArrayIdOfAllLanguagesExistingInDatabase();
+      $namesOfLanguages = retrieveFromDatabaseAndReturnInArrayNamesOfAllLanguagesExistingInDatabase();
+      for ( $index = 0; $index < sizeof( $idOfLanguages ); $index++ ) {
 
-         if ( $_SESSION['idOfLanguage' . $index] == $idOfDefaultLanguage ) {
+         if ( $idOfLanguages[$index] == $idOfDefaultLanguage ) {
             $selectElement .= '
-                        <option value="' . $_SESSION['idOfLanguage' . $index] . '" selected>' . $_SESSION['nameOfLanguage' . $index] . '</option>';
+                  <option value="' . $idOfLanguages[$index] . '" selected>' . capitalizeWordsThatShouldBeCapitalized( $namesOfLanguages[$index] ) . '</option>';
          }
          else {
             $selectElement .= '
-                        <option value="' . $_SESSION['idOfLanguage' . $index] . '">' . $_SESSION['nameOfLanguage' . $index] . '</option>';
+                  <option value="' . $idOfLanguages[$index] . '">' . capitalizeWordsThatShouldBeCapitalized( $namesOfLanguages[$index] ) . '</option>';
          }
 
       }
 
       $selectElement .= '
-                     </select>';
+               </select>
+      ';
 
       return $selectElement;
    }
@@ -1877,18 +2103,22 @@
    function getMarkupForTextFieldForSpecifyingNameOfLanguage( $defaultNameOfLanguage = NULL )
    {
       return '
-                  <label class="fieldInEditForm">
-                     What is the name of your language? 
-                     <input type="text" name="nameOfNewLanguage" value="' . $defaultNameOfLanguage . '"/>
-                  </label>';
+               <div>
+                  <label for="nameOfNewLanguage">What is the name of your language?</label>
+                  <input type="text" id="nameOfNewLanguage" name="nameOfNewLanguage" value="' . $defaultNameOfLanguage . '"/>
+               </div>
+      ';
    }
 
 
    function getMarkupForEditButtonAndDeleteButton()
    {
       return '
-                  <input type="submit" name="editLanguageButton" value="Edit" class="buttonInEditForm" />
-                  <input type="submit" name="deleteLanguageButton" value="Delete" class="buttonInEditForm" />';
+
+               <div>
+                  <input type="submit" name="editLanguageButton" value="Edit" class="blueButton" />
+                  <input type="submit" name="deleteLanguageButton" value="Delete" class="blueButton" />
+               </div>';
    }
 
 
@@ -1909,28 +2139,23 @@
    {
       $form = '
          <form method="POST" action="' . $_SERVER['PHP_SELF'] . '">
-            <label class="fieldInEditForm">
-               Enter your favourite quotes: <br />
-      ';
+            <label for="favouriteQuotes">Enter your favourite quotes:</label>';
 
       if ( $defaultFavouriteQuotes == INVALID ) {
          $form .= '
-               <textarea name="favouriteQuotes" class="textAreaInEditForm"></textarea>
-               <br />
-               <span class="errorMessageInEditForm">Please enter your favourite quotes</span>';
+            <textarea id="favouriteQuotes" name="favouriteQuotes"></textarea>
+            <span class="errorMessage">Please enter your favourite quotes</span>
+         ';
       }
       else {
          $form .= '
-               <textarea name="favouriteQuotes" class="textAreaInEditForm">' . $defaultFavouriteQuotes . '</textarea>';
+            <textarea id="favouriteQuotes" name="favouriteQuotes">' . $defaultFavouriteQuotes . '</textarea>
+         ';
       }
 
-      $form .= '
-            </label>
-
-            <input type="submit" name="cancelButton" value="Cancel" class="buttonInEditForm" />
-            <input type="submit" name="saveButton" value="Save" class="buttonInEditForm" />
-         </form>
-      ';
+      $form .=
+            getMarkupForSaveButtonAndCancelButton() . '
+         </form>';
 
       return $form;
    }
@@ -1954,28 +2179,23 @@
    {
       $form = '
          <form method="POST" action="' . $_SERVER['PHP_SELF'] . '">
-            <label class="fieldInEditForm">
-               What are some things about you which you want your friends to know? <br />
-      ';
+            <label for="aboutMe">What are some things about you which you want your friends to know?</label>';
 
       if ( $defaultAboutMeDetails == INVALID ) {
          $form .= '
-               <textarea name="aboutMe" class="textAreaInEditForm"></textarea>
-               <br />
-               <span class="errorMessageInEditForm">Please fill this field</span>';
+            <textarea id="aboutMe" name="aboutMe"></textarea>
+            <span class="errorMessage">Please fill this field</span>
+         ';
       }
       else {
          $form .= '
-               <textarea name="aboutMe" class="textAreaInEditForm">' . $defaultAboutMeDetails . '</textarea>';
+            <textarea id="aboutMe" name="aboutMe">' . $defaultAboutMeDetails . '</textarea>
+         ';
       }
 
-      $form .= '
-            </label>
-
-            <input type="submit" name="cancelButton" value="Cancel" class="buttonInEditForm" />
-            <input type="submit" name="saveButton" value="Save" class="buttonInEditForm" />
-         </form>
-      ';
+      $form .= 
+            getMarkupForSaveButtonAndCancelButton() . '
+         </form>';
 
       return $form;
    }
@@ -2009,32 +2229,31 @@
    {
       $form = '
          <form method="POST" action="' . $_SERVER['PHP_SELF'] . '">
-            <label class="fieldInEditForm">
-               Phone number:
-               <input type="text" name="phoneNumber" value="' . $defaultPhoneNumber . '" />';
+            <label for="phoneNumber">Phone number:</label>
+            <input type="text" id="phoneNumber" name="phoneNumber" value="' . $defaultPhoneNumber . '" />
+      ';
 
       if ( $defaultPhoneNumber === '' ) {
          $form .= '
-               <span class="errorMessageInEditForm">Please, enter your phone number.</span>';
+            <span class="errorMessage">Please, enter your phone number.</span>
+         ';
       }
 
       if ( $status == INVALID_PHONE_NUMBER ) {
          $form .= '
-               <span class="errorMessageInEditForm">Invalid phone number.</span>';
+            <span class="errorMessage">Invalid phone number.</span>
+         ';
       }
 
       if ( $status == ANOTHER_USER_HAS_THE_SAME_PHONE_NUMBER ) {
          $form .= '
-               <span class="errorMessageInEditForm">Another ife_facebook user already uses this phone number.</span>';
+            <span class="errorMessage">Another ife_facebook user already uses this phone number.</span>
+         ';
       }
 
-      $form .= '
-            </label>
-
-            <input type="submit" name="saveButton" value="Save" class="buttonInEditForm" />
-            <input type="submit" name="cancelButton" value="Cancel" class="buttonInEditForm" />
-         </form>
-      ';
+      $form .=
+            getMarkupForSaveButtonAndCancelButton() . '
+         </form>';
 
       return $form;
    }
@@ -2073,32 +2292,31 @@
    {
       $form = '
          <form method="POST" action="' . $_SERVER['PHP_SELF'] . '">
-            <label class="fieldInEditForm">
-               Email Address:
-               <input type="text" name="emailAddress" value="' . $defaultEmailAddress . '" />';
+            <label for="emailAddress">Email Address:</label>
+            <input type="text" id="emailAddress" name="emailAddress" value="' . $defaultEmailAddress . '" />
+         ';
 
       if ( $defaultEmailAddress === '' ) {
          $form .= '
-               <span class="errorMessageInEditForm">Please, enter your email address.</span>';
+            <span class="errorMessage">Please, enter your email address.</span>
+         ';
       }
 
       if ( $status == INVALID_EMAIL_ADDRESS ) {
          $form .= '
-               <span class="errorMessageInEditForm">Invalid email address.</span>';
+            <span class="errorMessage">Invalid email address.</span>
+         ';
       }
 
       if ( $status == ANOTHER_USER_HAS_THE_SAME_EMAIL_ADDRESS ) {
          $form .= '
-               <span class="errorMessageInEditForm">Another ife_facebook user already uses this email address.</span>';
+            <span class="errorMessage">Another ife_facebook user already uses this email address.</span>
+         ';
       }
 
-      $form .= '
-            </label>
-
-            <input type="submit" name="saveButton" value="Save" class="buttonInEditForm" />
-            <input type="submit" name="cancelButton" value="Cancel" class="buttonInEditForm" />
-         </form>
-      ';
+      $form .= 
+            getMarkupForSaveButtonAndCancelButton() . '
+         </form>';
 
       return $form;
    }
@@ -2107,13 +2325,10 @@
    function getMarkupToIndicateThatLanguageWasRepeated( $idOfRepeatedLanguage )
    {
       return '
-         <div class="containerForErrorMessageInEditForm">
-            <span class="errorMessageInEditForm">
-               Repeated Language!<br /> 
-               The language which you selected as "LANGUAGE ' . getIndexOfLanguage( $_POST['idOfLanguageToBeEdited'] ) . '" 
-               is exactly the same as "LANGUAGE ' . getIndexOfLanguage( $idOfRepeatedLanguage ) . '". 
-               Why not select another language?
-            </span>
+         <div class="errorMessage notFloating">
+            <p>Repeated Language!</p>
+            <p>The language which you selected as "LANGUAGE ' . getIndexOfLanguage( $_POST['idOfLanguageToBeEdited'] ) . '" is exactly the same as "LANGUAGE ' . getIndexOfLanguage( $idOfRepeatedLanguage ) . '".</p>
+            <p>Please, select another language.</p>
          </div>
       ';
    }
@@ -2160,57 +2375,55 @@
    {
       $form = '
          <form method="POST" action="' . $_SERVER['PHP_SELF'] . '">
-            <label class="fieldInEditForm">
-               First name:
-               <input type="text" name="firstName" value="' . $defaultFirstName . '" maxlength="50"/>';
+            <div class="whiteContainerWithoutBorder">
+               <label for="firstName" class="thirtyPercentWidth">First name:</label>
+               <input type="text" id="firstName" name="firstName" value="' . $defaultFirstName . '" maxlength="50"/>';
 
       if ( $defaultFirstName === '' ) {
          $form .= '
-               <span class="errorMessageInEditForm">Please, enter your first name</span>';
+               <span class="errorMessage">Please, enter your first name</span>';
       }
 
       if ( $status == INVALID && isNotValidUserName( $defaultFirstName ) ) {
          $form .= '
-               <span class="errorMessageInEditForm">Invalid first name</span>';
+               <span class="errorMessage">Invalid first name</span>';
       }
 
       $form .= '
-            </label>
+            </div>
 
-            <label class="fieldInEditForm">
-               Last name:
-               <input type="text" name="lastName" value="' . $defaultLastName . '" maxlength="50"/>';
+            <div class="whiteContainerWithoutBorder">
+               <label for="lastName" class="thirtyPercentWidth">Last name:</label>
+               <input type="text" id="lastName" name="lastName" value="' . $defaultLastName . '" maxlength="50"/>';
 
       if ( $defaultLastName === '' ) {
          $form .= '
-               <span class="errorMessageInEditForm">Please, enter your last name</span>';
+               <span class="errorMessage">Please, enter your last name</span>';
       }
 
       if ( $status == INVALID && isNotValidUserName( $defaultLastName ) ) {
          $form .= '
-               <span class="errorMessageInEditForm">Invalid last name</span>';
+               <span class="errorMessage">Invalid last name</span>';
       }
 
       $form .= '
-            </label>
+            </div>
 
-            <label class="fieldInEditForm">
-               Nick name (optional):
-               <input type="text" name="nickName" value="' . $defaultNickName . '" maxlength="50"/>';
+            <div class="whiteContainerWithoutBorder">
+               <label for="nickName" class="thirtyPercentWidth">Nick name (optional):</label>
+               <input type="text" id="nickName" name="nickName" value="' . $defaultNickName . '" maxlength="50"/>';
 
 
       if ( $status == INVALID && isNotValidUserName( $defaultNickName ) ) {
          $form .= '
-               <span class="errorMessageInEditForm">Invalid nick name</span>';
+               <span class="errorMessage">Invalid nick name</span>';
       }
 
       $form .= '
-            </label>
-
-            <input type="submit" name="saveButton" value="Save" class="buttonInEditForm" />
-            <input type="submit" name="cancelButton" value="Cancel" class="buttonInEditForm" />
-         </form>
-      ';
+            </div>
+            ' .
+         getMarkupForSaveButtonAndCancelButton() . '
+         </form>';
 
       return $form;
    }
@@ -2240,60 +2453,58 @@
    {
       $form = '
          <form method="POST" action="' . $_SERVER['PHP_SELF'] . '">
-            <label  class="fieldInEditForm">
-               Current password:
-               <input type="password" name="currentPassword" maxlength="50" />';
+            <div  class="whiteContainerWithoutBorder">
+               <label for="currentPassword" class="thirtyPercentWidth">Current password:</label>
+               <input type="password" id="currentPassword" name="currentPassword" maxlength="50" />';
 
       if ( $defaultCurrentPassword === '' ) {
          $form .= '
-               <span class="errorMessageInEditForm">Please, enter your current password</span>';
+               <span class="errorMessage">Please, enter your current password</span>';
       }
 
       if ( $status == CURRENT_PASSWORD_IS_INCORRECT ) {
          $form .= '
-               <span class="errorMessageInEditForm">This password is not correct</span>';
+               <span class="errorMessage">This password is not correct</span>';
       }
 
       $form .= '
-            </label>
+            </div>
 
-            <label class="fieldInEditForm">
-               New password:
-               <input type="password" name="newPassword" maxlength="50" />';
+            <div class="whiteContainerWithoutBorder">
+               <label for="newPassword" class="thirtyPercentWidth">New password:</label>
+               <input type="password" id="newPassword" name="newPassword" maxlength="50" />';
 
       if ( $defaultNewPassword === '' ) {
          $form .= '
-               <span class="errorMessageInEditForm">Please, enter your new password</span>';
+               <span class="errorMessage">Please, enter your new password</span>';
       }
 
       $form .= '
-            </label>
+            </div>
 
-            <label class="fieldInEditForm">
-               Re-enter new password:
-               <input type="password" name="confirmationOfNewPassword" maxlength="50" />';
+            <div class="whiteContainerWithoutBorder">
+               <label for="confirmationOfNewPassword" class="thirtyPercentWidth">Re-enter new password:</label>
+               <input type="password" id="confirmationOfNewPassword" name="confirmationOfNewPassword" maxlength="50" />';
 
       if ( $defaultConfirmationOfNewPassword === '' ) {
          $form .= '
-               <span class="errorMessageInEditForm">Please, re-enter your new password</span>';
+               <span class="errorMessage">Please, re-enter your new password</span>';
       }
 
 
       $form .= '
-            </label>
+            </div>
       ';
 
       if ( $status == PASSWORDS_DO_NOT_MATCH ) {
          $form .= '
-            <span class="errorMessageInEditForm">The new passwords you entered do not match</span>
-            <br />';
+            <span class="errorMessage">The new passwords you entered do not match</span>
+         ';
       }
 
-      $form .= '
-            <input type="submit" name="saveButton" value="Save" class="buttonInEditForm" />
-            <input type="submit" name="cancelButton" value="Cancel" class="buttonInEditForm" />
-         </form>
-      ';
+      $form .=
+            getMarkupForSaveButtonAndCancelButton() . '
+         </form>';
 
       return $form;
    }
@@ -2301,26 +2512,442 @@
 
    function getMarkupToConfirmThatUserReallyWantsToDeactivateAccount()
    {
-      return '
-      <h1>ife_facebook</h1>
-      <p>If you deactivate your account, you will no longer have access to ife_facebook services.</p>
-      <p>Do you really want to deactivate your account?</p>
+      return '<div class="mainBody whiteContainerWithBorder">
+         <h1 class="blueText">Do you really want to deactivate your account?</h1>
+         <p class="smallSizedText darkGreyText">Note: If you deactivate your account, you will no longer have access to ife_facebook services.</p>
 
-      <form method="POST" action="' . $_SERVER['PHP_SELF'] . '">
-         <input type="submit" name="yesButton" value="Yes" />
-         <input type="submit" name="cancelButton" value="No" />
-      </form>
-      ';
+         <form method="POST" action="' . $_SERVER['PHP_SELF'] . '">
+            <input type="submit" name="yesButton" value="Yes" class="bigBlueButton"/>
+            <input type="submit" name="cancelButton" value="No" class="bigBlueButton"/>
+         </form>
+      </div>';
    }
 
 
    function getMarkupToTellUserThatHisAccountHasBeenDeactivated()
    {
+      return '<div class="mainBody whiteContainerWithBorder">
+         <h1 class="blueText centralizedText smallBottomMargin">Account Deactivated</h1>
+         <p class="centralizedText smallBottomMargin">Your account has been deactivated. We are very sad to loose you.</p>
+         <p class="centralizedText" >If you wish to sign up to ife_facebook at any time, you can easily visit our sign up page at: <a href="signUpPage.php">ife_facebook.com/signUpPage.php</a></p>
+      </div>';
+   }
+
+
+   function getMarkupToTellUserThatHisPasswordHasBeenChangedSuccessfully()
+   {
+      return '<div class="mainBody whiteContainerWithBorder centralizedText">
+         <h1 class="blueText smallBottomMargin">Password Successfully Changed</h1>
+         <p class="smallBottomMargin">Your password has been changed successfully.</p>
+         <p class="smallBottomMargin">Click on the link below to login with your new password:</p>
+         <p><a href="index.php">Log in to ife_facebook</a></p>
+      </div>';
+   }
+
+
+   function getMarkupToDisplayFriendsOfLoggedInUser()
+   {
+      if ( $_SESSION['totalNumberOfFriends'] == 0 ) {
+         return '
+         <p>Sorry, you have no friends</p>
+         <p>Why not <a href="findFriends.php">search for new friends</a>?</p>';
+      }
+      else {
+         $markup = '
+         <h1 class="bigSizedText">Your Friends:</h1>';
+
+         for ( $index = 0; $index < $_SESSION['totalNumberOfFriends']; $index++ ) {
+            $markup .= '
+
+         <div class="whiteContainerWithBorder smallTopMargin bigTopPadding bigBottomPadding">' . 
+            getMarkupToDisplayDetailsOfUser( $_SESSION['idOfFriend' . $index] ) . '
+         </div>';
+         }
+
+         return $markup;
+      }
+   }
+
+
+   function getMarkupToDisplayFriendsOfRequiredUser( $idOfRequiredUser )
+   {
+      $friends = retrieveFromDatabaseAndReturnInArrayIdOfFirstSetOfFriends( $idOfRequiredUser );
+
+      $markup = '';
+
+      for ( $index = 0; $index < sizeof( $friends ); $index++ ) {
+         $markup .= '
+
+         <div class="whiteContainerWithBorder smallTopMargin bigTopPadding bigBottomPadding">' . 
+            getMarkupToDisplayDetailsOfUser( $friends[$index] ) . '
+         </div>';
+      }
+
+      $friends = retrieveFromDatabaseAndReturnInArrayIdOfSecondSetOfFriends( $idOfRequiredUser );
+
+      for ( $index = 0; $index < sizeof( $friends ); $index++ ) {
+         $markup .= '
+
+         <div class="whiteContainerWithBorder smallTopMargin bigTopPadding bigBottomPadding">' . 
+            getMarkupToDisplayDetailsOfUser( $friends[$index] ) . '
+         </div>';
+      }
+
+      return ( $markup == '' ? '   <p>No Friends</p>' : $markup );
+   }
+
+
+   function getMarkupForFormContainingSearchBarForSearchingForIfeFacebookUsers( $defaultValueForSearchField = NULL )
+   {
       return '
-      <h1>ife_facebook</h1>
-      <p>Your account has been deactivated. We are very sad to loose you.</p>
-      <p>If you wish to sign up to ife_facebook at any time, you can easily visit our sign up page at: <a href="signUpPage.php">ife_facebook.com/signUpPage.php</a></p>
+         <form method="GET" action="' . $_SERVER['PHP_SELF'] . '">
+            <input type="hidden" name="offsetForSearchResults" value="0" />
+            <input type="hidden" name="numberOfSearchResultsToBeDisplayed" value="' . DEFAULT_NUMBER_OF_ROWS_FOR_SEARCH_RESULTS . '" />
+
+            <input type="text" name="searchQuery" placeholder="Type the person\'s name here..." value="' . $defaultValueForSearchField . '" class="threeQuartersWidth" />
+            <input type="submit" name="searchButton" value="Search" class="blueButton" />
+         </form>
       ';
+   }
+
+
+   function getMarkupToDisplayPendingFriendRequests()
+   {
+      $idOfPendingUsers =
+         retrieveFromDatabaseAndReturnInArrayIdOfAllUsersWhoseFriendRequestsHaveNotBeenAcceptedByLoggedInUser();
+
+      $markup = '
+         <div class="whiteContainerWithBorder smallTopMargin boxShadowEffect">
+            <h2 class="moderateSizedText">Pending Friend Requests</h2>
+      ';
+
+      for ( $index = 0; $index < sizeof( $idOfPendingUsers ); $index++ ) {
+         $markup .= '
+            <section class="whiteContainerWithBorder">
+               <div class="floatedToLeft">' .
+                  getMarkupToDisplayDetailsOfUser( $idOfPendingUsers[$index] ) . '
+               </div>
+
+               <div class="floatedToRight">' .
+                  getMarkupToIndicateFriendRelationshipBetweenLoggedInUserAndRequiredUser( $idOfPendingUsers[$index] ) . '
+               </div>
+            </section>';
+      }
+
+      $markup .= '
+         </div>';
+
+      return $markup;
+   }
+
+
+   function getMarkupToDisplayAListOfUsersRecommendedForFriendship()
+   {
+      $list = getMarkupToDisplayRecommendedUsersFromTheSameHometownAsLoggedInUser( MAX_NUMBER_OF_USERS_TO_RECOMMEND );
+
+      if ( moreUsersAreToBeRecommendedForFriendship() ) {
+         $numberOfUsersAlreadyDisplayed = getNumberOfRecommendedUsersFromTheSameHometownAsLoggedInUser();
+         $maximumNumberOfUsersYetToBeDisplayed = MAX_NUMBER_OF_USERS_TO_RECOMMEND - $numberOfUsersAlreadyDisplayed;
+         $list .=
+            getMarkupToDisplayRecommendedUsersLivingInTheSameCityAsLoggedInUser( $maximumNumberOfUsersYetToBeDisplayed );
+      }
+
+      return '
+         <div class="whiteContainerWithBorder smallTopMargin boxShadowEffect">
+            <h2 class="moderateSizedText">People You May Know:</h2>
+            ' . ( $list == '' ? '<p>No recommended person.</p>' : $list ) . '
+         </div>';
+   }
+
+
+   function getMarkupToDisplayRecommendedUsersFromTheSameHometownAsLoggedInUser( $maximumNumberOfUsersToBeDisplayed )
+   {
+      $row = retrieveFromDatabaseIdOfHometown( $_SESSION['idOfLoggedInUser'] );
+
+      if ( doesNotExistInDatabase( $row['id_of_hometown'] ) ) {
+         return '';
+      }
+
+      $idOfUsers = retrieveFromDatabaseAndReturnInArrayIdOfUsersAssociatedWithHometown( $row['id_of_hometown'] );
+
+      $markup = '';
+      $counter = 0;
+      for ( $index = 0; $index < sizeof( $idOfUsers ) && $counter < $maximumNumberOfUsersToBeDisplayed; $index++ ) {
+         if ( userShouldBeRecommendedForFriendship( $idOfUsers[$index] ) ) {
+            $markup .= '
+
+            <section class="transparentContainerWithBorder">
+               <div class="floatedToLeft">' .
+                  getMarkupToDisplayDetailsOfUser( $idOfUsers[$index] ) . '
+               </div>
+
+               <div class="floatedToRight">' .
+                  getMarkupToIndicateFriendRelationshipBetweenLoggedInUserAndRequiredUser( $idOfUsers[$index] ) . '
+               </div>
+            </section>';
+            $counter++;
+         }
+      }
+
+      return $markup;
+   }
+
+
+   function getMarkupToDisplayRecommendedUsersLivingInTheSameCityAsLoggedInUser( $maximumNumberOfUsersToBeDisplayed )
+   {
+      $row = retrieveFromDatabaseIdOfCurrentCity( $_SESSION['idOfLoggedInUser'] );
+
+      if ( doesNotExistInDatabase( $row['id_of_current_city'] ) ) {
+         return '';
+      }
+
+      $idOfUsers = retrieveFromDatabaseAndReturnInArrayIdOfUsersAssociatedWithCurrentCity( $row['id_of_current_city'] );
+
+      $markup = '';
+      $counter = 0;
+      for ( $index = 0; $index < sizeof( $idOfUsers ) && $counter < $maximumNumberOfUsersToBeDisplayed; $index++ ) {
+         if ( userIsNotFromTheSameHometownAsLoggedInUser( $idOfUsers[$index] ) &&
+            userShouldBeRecommendedForFriendship( $idOfUsers[$index] ) )
+         {
+            $markup .= '
+
+            <section class="transparentContainerWithBorder">
+               <div class="floatedToLeft">' .
+                  getMarkupToDisplayDetailsOfUser( $idOfUsers[$index] ) . '
+               </div>
+
+               <div class="floatedToRight">' .
+                  getMarkupToIndicateFriendRelationshipBetweenLoggedInUserAndRequiredUser( $idOfUsers[$index] ) . '
+               </div>
+            </section>';
+            $counter++;
+         }
+      }
+
+      return $markup;
+   }
+
+
+   function getMarkupForErrorMessageToIndicateThatSearchQueryIsNotValid()
+   {
+      return '
+        <span class="errorMessageInEditForm">Invalid search query</span>';
+   }
+
+
+   function getMarkupToDisplaySearchResultsContainingUsersWhoseNamesMatchSearchQuery( 
+      $searchQuery, $offset, $numberOfRows )
+   {
+      $idOfMatchingUsers = 
+         rerieveFromDatabaseAndReturnInArrayIdOfUsersWhoseNamesMatchSearchQuery( $searchQuery, $offset, $numberOfRows );
+
+      if ( doesNotExistInDatabase( $idOfMatchingUsers ) ) {
+         $_SESSION['totalNumberOfSearchResultsCurrentlyListed'] = 0;
+         $_SESSION['totalNumberOfSearchResultsDisplayedSoFar'] = $offset + 0;
+         return '
+         <p>No results found.</p>';
+      }
+
+      $markupContainingSearchResults = '
+         <h2 class="moderateSizedText">Search Results:</h2>';
+
+      for ( $index = 0; $index < sizeof( $idOfMatchingUsers ); $index++ ) {
+         $markupContainingSearchResults .= '
+
+         <section class="whiteContainerWithBorder smallTopMargin bigTopPadding bigBottomPadding">
+            <div class="floatedToLeft">'.
+               getMarkupToDisplayDetailsOfUser( $idOfMatchingUsers[$index] ) . '
+            </div>
+
+            <div class="floatedToRight">' .
+               getMarkupToIndicateFriendRelationshipBetweenLoggedInUserAndRequiredUser( $idOfMatchingUsers[$index] ) . '
+            </div>
+         </section>';
+      }
+
+      $_SESSION['totalNumberOfSearchResultsCurrentlyListed'] = sizeof( $idOfMatchingUsers );
+      $_SESSION['totalNumberOfSearchResultsDisplayedSoFar'] = $offset + sizeof( $idOfMatchingUsers );
+
+      return $markupContainingSearchResults;
+   }
+
+
+   function getMarkupToDisplayDetailsOfUser( $idOfUser )
+   {
+      $names = retrieveFromDatabaseFirstNameLastNameAndNickName( $idOfUser );
+
+      $markup = '
+                  <h2 class="moderateSizedText"><a href="profileOfUser.php?idOfRequiredUser=' . $idOfUser . '">' . 
+                     $names['first_name'] . ' ' . $names['last_name'];
+
+      if ( $names['nick_name'] != NULL ) {
+         $markup .= ' (' . $names['nick_name'] . ')';
+      }
+
+      $markup .= 
+                  '</a></h2>' .
+                  getMarkupContainingAnyInterestingInformationAboutUser( $idOfUser );
+
+      return $markup;
+   }
+
+
+   function getMarkupToIndicateFriendRelationshipBetweenLoggedInUserAndRequiredUser( $idOfRequiredUser )
+   {
+      if ( $idOfRequiredUser == $_SESSION['idOfLoggedInUser'] ) {
+         return '';
+      }
+      else if ( areFriendsOfEachOther( $_SESSION['idOfLoggedInUser'], $idOfRequiredUser ) ) {
+         return getMarkupForUnfriendButton( $idOfRequiredUser );
+      }
+      else if ( friendRequestSentByLoggedInUserHasNotYetBeenAcceptedByRequiredUser( $idOfRequiredUser ) ) {
+         return '
+                  <p>Friend request sent</p>';
+      }
+      else if ( loggedInUserHasNotYetAcceptedFriendRequestByRequiredUser( $idOfRequiredUser ) ) {
+         return '
+                  <p>This person sent you a friend request</p>' .
+                  getMarkupForAcceptFriendRequestButton( $idOfRequiredUser ) .
+                  getMarkupForRejectFriendRequestButton( $idOfRequiredUser );
+      }
+      else {
+         return getMarkupForSendFriendRequestButton( $idOfRequiredUser );
+      }
+   }
+
+
+   function getMarkupForUnfriendButton( $idOfRequiredUser )
+   {
+      return '
+                  <form method="POST" action="processRequestToUnfriendUser.php">
+                     <input type="hidden" name="idOfRequiredUser" value="' . $idOfRequiredUser . '" />
+                     <input type="hidden" name="urlOfSourcePage" value="' . getMarkupContainingUrlOfCurrentPageAsWellAsGETParameters() . '" />
+                     <input type="submit" value="Unfriend This Person" class="blueButton" />
+                  </form>';
+   }
+
+
+   function getMarkupForAcceptFriendRequestButton( $idOfRequiredUser )
+   {
+      return '
+
+                  <form method="POST" action="processRequestToAcceptFriendRequest.php" class="displayAsInline verySmallBottomMargin">
+                     <input type="hidden" name="idOfRequiredUser" value="' . $idOfRequiredUser . '" />
+                     <input type="hidden" name="urlOfSourcePage" value="' . getMarkupContainingUrlOfCurrentPageAsWellAsGETParameters() . '" />
+                     <input type="submit" value="Accept Request" class="blueButton" />
+                  </form>';
+   }
+
+
+   function getMarkupForRejectFriendRequestButton( $idOfRequiredUser )
+   {
+      return '
+
+                  <form method="POST" action="processRequestToRejectFriendRequest.php" class="displayAsInline">
+                     <input type="hidden" name="idOfRequiredUser" value="' . $idOfRequiredUser . '" />
+                     <input type="hidden" name="urlOfSourcePage" value="' . getMarkupContainingUrlOfCurrentPageAsWellAsGETParameters() . '" />
+                     <input type="submit" value="Reject Request" class="blueButton" />
+                  </form>';
+   }
+
+
+   function getMarkupForSendFriendRequestButton( $idOfRequiredUser )
+   {
+      return '
+                  <form method="POST" action="processRequestToSendFriendRequest.php">
+                     <input type="hidden" name="idOfRequiredUser" value="' . $idOfRequiredUser . '" />
+                     <input type="hidden" name="urlOfSourcePage" value="' . getMarkupContainingUrlOfCurrentPageAsWellAsGETParameters() . '" />
+                     <input type="submit" value="Send Friend Request" class="blueButton" />
+                  </form>';
+   }
+
+
+   function getMarkupContainingUrlOfCurrentPageAsWellAsGETParameters()
+   {
+      if ( isset( $_GET['offsetForSearchResults'] ) && isset( $_GET['numberOfSearchResultsToBeDisplayed'] ) && 
+         isset( $_GET['searchQuery'] ) )
+      {
+         return $_SERVER['PHP_SELF'] . '?offsetForSearchResults=' . $_GET['offsetForSearchResults'] . '&numberOfSearchResultsToBeDisplayed=' . $_GET['numberOfSearchResultsToBeDisplayed'] . '&searchQuery=' . $_GET['searchQuery'] . '&searchButton=Search';
+      }
+      else {
+         return $_SERVER['PHP_SELF'];
+      }
+   }
+
+
+   function getMarkupContainingAnyInterestingInformationAboutUser( $idOfUser )
+   {
+      $row = retrieveFromDatabaseIdOfHometown( $idOfUser );
+
+      if ( existsInDatabase( $row['id_of_hometown'] ) ) {
+         $hometownDetails = retrieveFromDatabaseCityDetails( $row['id_of_hometown'] );
+         return '
+                  <p>Hails from ' . capitalizeWordsThatShouldBeCapitalized( $hometownDetails['name_of_city'] ) . ', ' . capitalizeWordsThatShouldBeCapitalized( $hometownDetails['name_of_country'] ) . '</p>';
+      }
+
+      $row = retrieveFromDatabaseIdOfCurrentCity( $idOfUser );
+
+      if ( existsInDatabase( $row['id_of_current_city'] ) ) {
+         $currentCityDetails = retrieveFromDatabaseCityDetails( $row['id_of_current_city'] );
+         return '
+                  <p>Lives in ' . capitalizeWordsThatShouldBeCapitalized( $currentCityDetails['name_of_city'] ) . ', ' . capitalizeWordsThatShouldBeCapitalized( $currentCityDetails['name_of_country'] ) . '</p>';
+      }
+
+      $idOfLanguages = retrieveFromDatabaseAndReturnInArrayIdOfAllLanguagesSpoken( $idOfUser );
+
+      for ( $index = 0; $index < sizeof( $idOfLanguages ); $index++ ) {
+
+         if ( alreadyExistsInDatabaseAsLanguageSpokenByLoggedInUser( $idOfLanguages[$index] ) ) {
+            $row = retrieveFromDatabaseNameOfLanguage( $idOfLanguages[$index] );
+            return '
+                  <p>Also speaks ' . capitalizeWordsThatShouldBeCapitalized( $row['name_of_language'] ) . '</p>';
+         }
+      }
+
+      return '';
+   }
+
+
+   function getMarkupForLinkForViewingPreviousSearchResults()
+   {
+      if ( $_SESSION['totalNumberOfSearchResultsDisplayedSoFar'] > DEFAULT_NUMBER_OF_ROWS_FOR_SEARCH_RESULTS ) {
+         return '
+
+         <a href="' . $_SERVER['PHP_SELF'] . '?requiredAction=viewPreviousSearchResults&offsetForSearchResults=' . ( $_SESSION['totalNumberOfSearchResultsDisplayedSoFar'] - $_SESSION['totalNumberOfSearchResultsCurrentlyListed'] - DEFAULT_NUMBER_OF_ROWS_FOR_SEARCH_RESULTS ) . '&numberOfSearchResultsToBeDisplayed=' . DEFAULT_NUMBER_OF_ROWS_FOR_SEARCH_RESULTS . '&searchQuery=' . $_GET['searchQuery'] . '" class="floatedToLeft">&lt;&lt;View Previous</a>';
+      }
+      else {
+         return '';
+      }
+   }
+
+
+   function getMarkupForLinkForViewingMoreSearchResults()
+   {
+      if ( atLeastOneMoreSearchResultExistsInDatabase() ) {
+         return '
+
+         <a href="' . $_SERVER['PHP_SELF'] . '?requiredAction=viewMoreSearchResults&offsetForSearchResults=' . $_SESSION['totalNumberOfSearchResultsDisplayedSoFar'] . '&numberOfSearchResultsToBeDisplayed=' . DEFAULT_NUMBER_OF_ROWS_FOR_SEARCH_RESULTS . '&searchQuery=' . $_GET['searchQuery'] . '" class="floatedToRight">View More&gt;&gt;</a>';
+      }
+      else {
+         return '';
+      }
+   }
+
+
+   function getMarkupForClearNotificationsButton()
+   {
+      return '
+         <form method="POST" action="processRequestToClearNotifications.php">
+            <input type="submit" name="clearNotificationsButton" value="Clear Notifications" class="blueButton verySmallTopMargin" />
+         </form>
+      ';
+   }
+
+
+   function getMarkupForErrorMessage( $errorMessage )
+   {
+      return '
+               <span class="errorMessage">' . $errorMessage . '</span>';
    }
 
 
@@ -2329,8 +2956,7 @@
 
       if ( $value === '' ) {
          return '
-               <span class="errorMessageInEditForm">' . $errorMessage . '</span>
-         ';
+               <span class="errorMessage">' . $errorMessage . '</span>';
       }
       else {
          return '';
@@ -2339,12 +2965,23 @@
    }
 
 
+   function getMarkupForErrorMessageIfValueConsistsOfSpacesOnly( $value, $errorMessage )
+   {
+      if ( $value != '' && consistsOfSpacesOnly( $value ) ) {
+         return '
+               <span class="errorMessage">' . $errorMessage . '</span>';
+      }
+      else {
+         return '';
+      }
+   }
+
+
    function getMarkupForErrorMessageIfValueIsAnInvalidNameOfLanguage( $value, $errorMessage )
    {
       if ( $value != '' && doesNotConsistOfAlphabetsAndSpacesOnly( $value ) ) {
          return '
-               <span class="errorMessageInEditForm">' . $errorMessage . '</span>
-         ';
+               <span class="errorMessage">' . $errorMessage . '</span>';
       }
       else {
          return '';
@@ -2357,8 +2994,7 @@
 
       if ( isNotValidUserName( $value ) ) {
          return '
-               <span class="errorMessageInSignUpForm">' . $errorMessage . '</span>
-         ';
+               <span class="errorMessage">' . $errorMessage . '</span>';
       }
       else {
          return '';
@@ -2372,8 +3008,7 @@
 
       if ( isNotValidEmailAddress( $value ) && isNotValidPhoneNumber( $value ) ) {
          return '
-               <span class="errorMessageInSignUpForm">' . $errorMessage . '</span>
-         ';
+               <span class="errorMessage">' . $errorMessage . '</span>';
       }
       else {
          return '';
@@ -2386,8 +3021,7 @@
    {
       if ( isset( $_GET['userPasswordOrConfirmationOfUserPasswordHaveNotBeenProvided'] ) ) {
          return '
-               <span class="errorMessageInSignUpForm">' . $errorMessage . '</span>
-         ';
+               <span class="errorMessage">' . $errorMessage . '</span>';
       }
       else {
          return '';
@@ -2400,12 +3034,27 @@
 
       if ( $value == INVALID ) {
          return '
-               <span class="errorMessageInEditForm">' . $errorMessage . '</span>';
+               <span class="errorMessage">' . $errorMessage . '</span>';
       }
       else {
          return '';
       }
 
+   }
+
+
+   function getMarkupForTheOpeningTagOfNestedDivElement()
+   {
+      return '
+            <div class="whiteContainerWithoutBorder">';
+   }
+
+
+   function getMarkupForTheClosingTagOfNestedDivElement()
+   {
+      return '
+            </div>
+      ';
    }
 
 
@@ -2416,24 +3065,112 @@
    }
 
 
-   function getMarkupForTheOpeningTagOfLabelElementInEditForms()
+   function getMarkupForTheClosingTagOfFormElement()
    {
       return '
-            <label class="fieldInEditForm">';
+         </form>';
    }
 
 
-   function getMarkupForTheClosingTagOfLabelElementInEditForms()
+   function getMarkupForTheOpeningTagOfNestedFormElement( $method = 'POST', $action = NULL )
    {
       return '
-            </label>';
+            <form method="' . $method . '" action="' . ( $action == NULL ? $_SERVER['PHP_SELF'] : $action ) . '">';
+   }
+
+
+   function getMarkupForTheClosingTagOfNestedFormElement()
+   {
+      return '
+            </form>';
+   }
+
+
+   function getMarkupForTheOpeningTagOfLabelElement( $idOfAssociatedInputElement = NULL )
+   {
+      return '
+               <label' . ( $idOfAssociatedInputElement == NULL ? '' : ' for="' . $idOfAssociatedInputElement . '"' ) . ' class="thirtyPercentWidth">';
+   }
+
+
+   function getMarkupForTheClosingTagOfLabelElement()
+   {
+      return '</label>';
    }
 
 
    function getMarkupForSaveButtonAndCancelButton()
    {
       return '
-            <input type="submit" name="saveButton" value="Save" class="buttonInEditForm"/>
-            <input type="submit" name="cancelButton" value="Cancel" class="buttonInEditForm" />';
+               <div>
+                  <input type="submit" name="saveButton" value="Save" class="blueButton"/>
+                  <input type="submit" name="cancelButton" value="Cancel" class="blueButton" />
+               </div>';
+   }
+
+
+   function getMarkupToDisplaySomeImportantNotifications()
+   {
+      $markup = '';
+
+      if ( userHasAtLeastOnePendingFriendRequest() ) {
+         $markup .= '
+            <li>You have some pending friend requests. <a href="findFriends.php">Click here to view them</a>.</li>
+         ';
+      }
+
+      $notifications = 
+         retrieveFromDatabaseAndReturnInArrayIdOfAllNotificationsThatAreMeantForLoggedInUserButHaveNotBeenRead();
+
+      if ( existsInDatabase( $notifications ) ) {
+         $markup .='
+            <li>' . 
+               getMarkupToDisplayDetailsAboutNotification( $notifications[0] ) . '
+            </li>';
+      }
+
+      if ( $markup != '' ) {
+         $markup = '
+         <ul>' . 
+            $markup . '
+         </ul>
+         ' . 
+         ( sizeof( $notifications ) > 1 ? '<a href="notifications.php">View more notifications</a>' : '' );
+      }
+
+      return $markup;
+   }
+
+
+   function getMarkupToDisplayDetailsAboutNotification( $idOfNotification )
+   {
+      $detailsAboutNotification = retrieveFromDatabaseDetailsAboutNotification( $idOfNotification );
+
+      return '
+               <p>' .
+                  $detailsAboutNotification['notification_text'] .
+               '</p>
+               <p>' . 
+                  '(On ' . $detailsAboutNotification['month'] . ' ' . $detailsAboutNotification['day'] . ', ' .
+                  'by ' . formatTimeShowingAmOrPm( $detailsAboutNotification['hour'], $detailsAboutNotification['minute'] ) . ')' . 
+               '</p>';
+   }
+
+
+   function getMarkupToConfirmThatLoggedInUserReallyWantsToUnfriendRequiredUser( $idOfRequiredUser )
+   {
+      $names = retrieveFromDatabaseFirstNameLastNameAndNickName( $idOfRequiredUser );
+
+      return '<div class="mainBody whiteContainerWithBorder">
+         <h1 class="blueText">Are you sure you want to unfriend <span class="boldText">' . $names['first_name'] . ' ' . $names['last_name'] . '</span>?</h1>
+         <p class="smallSizedText darkGreyText">Warning: If you unfriend a person, that person\'s status updates will no longer appear on your wall.</p>
+
+         <form method="POST" action="' . $_SERVER['PHP_SELF'] . '">
+            <input type="hidden"  name="idOfRequiredUser" value="' . $idOfRequiredUser . '" />
+            <input type="hidden"  name="urlOfSourcePage" value="' . $_POST['urlOfSourcePage'] . '" />
+            <input type="submit" name="yesButton" value="Yes" class="bigBlueButton"/>
+            <input type="submit" name="cancelButton" value="No" class="bigBlueButton"/>
+         </form>
+      </div>';
    }
 ?>

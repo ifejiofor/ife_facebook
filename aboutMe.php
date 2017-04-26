@@ -3,7 +3,7 @@
 <?php
    session_start();
 
-   include_once 'includeFiles/functionsToBeUsedAsTestConditions.php';
+   include_once 'includeFiles/booleanFunctions.php';
    include_once 'includeFiles/functionsForCreatingMarkups.php';
 
 
@@ -12,31 +12,27 @@
    }
    else {
       $markup = 
-         getMarkupForHeader() . '
-
-      <section class="mainSectionOfProfilePage">' .
-         getMarkupForTopOfProfilePage( 'aboutMe.php' ) .
-         getMarkupToDisplayBirthdayDetailsOfLoggedInUser() .
-         getMarkupToDisplayCurrentCityDetailsOfLoggedInUser() .
-         getMarkupToDisplayHometownDetailsOfLoggedInUser() .
-         getMarkupToDisplayGenderDetailsOfLoggedInUser() .
-         getMarkupToDisplayLanguageDetailsOfLoggedInUser() .
-         getMarkupToDisplayFavouriteQuoteDetailsOfLoggedInUser() .
-         getMarkupToDisplayAboutMeDetailsOfLoggedInUser() .
-         getMarkupToDisplayPhoneNumberDetailsOfLoggedInUser() .
-         getMarkupToDisplayEmailAddressDetailsOfLoggedInUser() . '
-      </section>  <!-- end section.mainSectionOfProfilePage -->
-      ';
+         getMarkupForHeader() .
+         getMarkupForTheOpeningTagOfMainBodyDiv() .
+            getMarkupForTopOfProfilePageOfLoggedInUser( 'aboutMe.php' ) .
+            getMarkupToDisplayBirthdayDetailsOfLoggedInUser() .
+            getMarkupToDisplayCurrentCityDetailsOfLoggedInUser() .
+            getMarkupToDisplayHometownDetailsOfLoggedInUser() .
+            getMarkupToDisplayGenderDetailsOfLoggedInUser() .
+            getMarkupToDisplayLanguageDetailsOfLoggedInUser() .
+            getMarkupToDisplayFavouriteQuoteDetailsOfLoggedInUser() .
+            getMarkupToDisplayAboutMeDetailsOfLoggedInUser() .
+            getMarkupToDisplayPhoneNumberDetailsOfLoggedInUser() .
+            getMarkupToDisplayEmailAddressDetailsOfLoggedInUser() .
+         getMarkupForClosingDivTag();
    }
 ?>
 
 <html>
    <head>
       <title>About Me | ife_facebook</title>
-      <link href="stylesheets/genericStylesheet.css" type="text/css" rel="stylesheet"/>
-      <link href="stylesheets/stylesheetForLoggedInHeader.css" type="text/css" rel="stylesheet"/>
-      <link href="stylesheets/stylesheetForTopOfProfilePage.css" type="text/css" rel="stylesheet"/>
-      <link href="stylesheets/stylesheetForProfileDetails.css" type="text/css" rel="stylesheet"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link href="stylesheets/ife_facebookStylesheet.css" type="text/css" rel="stylesheet"/>
    </head>
 
    <body>

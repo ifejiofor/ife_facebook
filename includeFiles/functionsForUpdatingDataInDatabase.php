@@ -1,7 +1,8 @@
 <?php
-   include_once 'includeFiles/functionsForAccessingDatabase.php';
+   include_once 'includeFiles/functionsForInteractingWithDatabaseAtLowLevel.php';
    include_once 'includeFiles/functionsForStoringDataIntoSESSION.php';
    include_once 'includeFiles/functionsForInsertingDataIntoDatabase.php';
+   include_once 'includeFiles/booleanFunctions.php';
    include_once 'includeFiles/miscellaneousFunctions.php';
    include_once 'includeFiles/usefulConstants.php';
 
@@ -23,11 +24,11 @@
    }
 
 
-   function updateInDatabaseCurrentCityDetails()
+   function updateInDatabaseCurrentCityDetailsOfLoggedInUser( $nameOfCity, $nameOfCountry )
    {
       global $handleOfIfeFacebookDatabase;
 
-      $idOfCity = insertIntoDatabaseCityEntryAndGetIdOfCityEntry( $_POST['nameOfCity'], $_POST['nameOfCountry'] );
+      $idOfCity = insertIntoDatabaseCityEntryAndGetIdOfCityEntry( $nameOfCity, $nameOfCountry );
 
       $query = '
          UPDATE user_information
@@ -38,11 +39,11 @@
    }
 
 
-   function updateInDatabaseHometownDetails()
+   function updateInDatabaseHometownDetailsOfLoggedInUser( $nameOfCity, $nameOfCountry )
    {
       global $handleOfIfeFacebookDatabase;
 
-      $idOfCity = insertIntoDatabaseCityEntryAndGetIdOfCityEntry( $_POST['nameOfCity'], $_POST['nameOfCountry'] );
+      $idOfCity = insertIntoDatabaseCityEntryAndGetIdOfCityEntry( $nameOfCity, $nameOfCountry );
 
       $query = '
          UPDATE user_information
@@ -72,7 +73,7 @@
    }
 
 
-   function updateInDatabaseLanguageDetails( $idOfNewLanguage, $idOfLanguageToBeUpdated )
+   function updateInDatabaseLanguageDetailsOfLoggedInUser( $idOfNewLanguage, $idOfLanguageToBeUpdated )
    {
       global $handleOfIfeFacebookDatabase;
 
@@ -220,6 +221,19 @@
          UPDATE user_information
             SET login_password = "' . mysql_real_escape_string( $password ) . '"
             WHERE user_id = ' . (integer)$_SESSION['idOfLoggedInUser'];
+
+      sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+   }
+
+
+   function updateInDatabaseEntryThatIndicatesThatAllNotificationsMeantForLoggedInUserHasBeenRead()
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      $query = '
+         UPDATE notifications
+            SET notification_state = "read"
+            WHERE id_of_user_whom_notification_is_meant_for = ' . $_SESSION['idOfLoggedInUser'];
 
       sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
    }

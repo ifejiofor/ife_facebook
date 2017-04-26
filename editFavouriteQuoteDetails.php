@@ -4,7 +4,7 @@
    session_start();
 
    include_once 'includeFiles/functionsForCreatingMarkups.php';
-   include_once 'includeFiles/functionsToBeUsedAsTestConditions.php';
+   include_once 'includeFiles/booleanFunctions.php';
    include_once 'includeFiles/functionsForUpdatingDataInDatabase.php';
 
 
@@ -14,9 +14,8 @@
    else {
       $markup = 
          getMarkupForHeader() . '
-      <div class="containerForEditForm">
-         <h2>Edit Profile</h2>
-         <h3>Edit Favourite Quotes</h3>
+      <div class="mainBody whiteContainerWithBorder">
+         <h1 class="bigSizedText blueText smallBottomMargin">Edit Favourite Quotes</h1>
       ';
 
       if ( userHasNotClickedOnAnyButton() ) {
@@ -34,16 +33,15 @@
       }
 
       $markup .= '
-      </div> <!-- end div.containerForEditForm -->'; 
+      </div>'; 
    }
 ?>
 
 <html>
    <head>
       <title>Edit Favourite Quotes | ife_facebook</title>
-      <link href="stylesheets/genericStylesheet.css" type="text/css" rel="stylesheet"/>
-      <link href="stylesheets/stylesheetForLoggedInHeader.css" type="text/css" rel="stylesheet"/>
-      <link href="stylesheets/stylesheetForFormForEditingProfileDetails.css" type="text/css" rel="stylesheet"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+      <link href="stylesheets/ife_facebookStylesheet.css" type="text/css" rel="stylesheet"/>
    </head>
 
    <body>

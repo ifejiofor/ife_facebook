@@ -12,14 +12,23 @@
     *
     * I started developing the website on 30th July 2016.
     *
+    * I completed this version on 24th April 2017.
+    *
     * My name is Ifechukwu Ejiofor.
     *
     * This file contains the homepage of 'ife_facebook.com'.
+    *
+    * *******************************************************************************************
+    * * TODO:                                                                                   *
+    * *  - I still need to give life to the "search ife_facebook" search bar                    *
+    * *  - I still need to implement the forgotPassword.php page                                *
+    * *  - I still need to include profile pictures and cover photos for each ife_facebook user *
+    * *******************************************************************************************
     */
 
    session_start();
 
-   include_once 'includeFiles/functionsToBeUsedAsTestConditions.php';
+   include_once 'includeFiles/booleanFunctions.php';
    include_once 'includeFiles/functionsForCreatingMarkups.php';
    include_once 'includeFiles/functionsForStoringDataIntoSESSION.php';
    include_once 'includeFiles/usefulConstants.php';
@@ -30,16 +39,22 @@
    }
    else {
       $markup = 
-         getMarkupForHeader() . '
-
-      <div class="loggedInBody">
-      ' .
-         getMarkupToDisplayTextAreaForPostingStatusUpdate() .
-         getMarkupToDisplayLinkForRefreshingThisPage();
+         getMarkupForHeader() .
+         getMarkupForTheOpeningTagOfMainBodyDiv() .
+            getMarkupToDisplayTextAreaForPostingStatusUpdate() .
+            getMarkupToDisplayLinkForRefreshingThisPage();
 
       if ( userHasNotClickedOnAnyLink() ) {
-         $markup .= getMarkupToDisplaySomeStatusUpdatesFromDatabase( 0, DEFAULT_NUMBER_OF_ROWS_FOR_STATUS_UPDATES );
-         storeIntoSESSIONInformationAboutStatusUpdates( 0, DEFAULT_NUMBER_OF_ROWS_FOR_STATUS_UPDATES );
+         $idOfStatusUpdates = retrieveFromDatabaseAndReturnInArrayIdOfSomeStatusUpdatesThatWerePostedByLoggedInUserOrHisFriends( 
+            DEFAULT_OFFSET, DEFAULT_NUMBER_OF_ROWS_FOR_STATUS_UPDATES );
+         storeIntoSESSIONInformationAboutStatusUpdates( DEFAULT_OFFSET, $idOfStatusUpdates );
+
+         // Because, the user may have new friends probably because of a friend request being accepted e.t.c.
+         storeIntoSESSIONIdOfAllFriendsAndTotalNumberOfFriendsOfLoggedInUser();
+
+         $markup .=
+            getMarkupToDisplaySomeImportantNotifications() .
+            getMarkupToDisplayAllStatusUpdatesContainedInArray( $idOfStatusUpdates );
       }
       else if ( userHasClickedOnTheLinkForViewingComments() ) {
          $markup .= getMarkupToDisplayAllStatusUpdatesStoredInSESSIONAndShowCommentsOnTheRequiredStatusUpdate();
@@ -51,41 +66,24 @@
          $markup .= getMarkupToDisplayAllStatusUpdatesStoredInSESSION();
       }
       else if ( userHasClickedOnTheLinkForViewingMoreStatusUpdates() ) {
-         $markup .= getMarkupToDisplaySomeStatusUpdatesFromDatabase( $_GET['offsetForStatusUpdates'], $_GET['numberOfStatusUpdatesToBeDisplayed'] );
-         storeIntoSESSIONInformationAboutStatusUpdates( $_GET['offsetForStatusUpdates'], $_GET['numberOfStatusUpdatesToBeDisplayed'] );
+         $idOfStatusUpdates = retrieveFromDatabaseAndReturnInArrayIdOfSomeStatusUpdatesThatWerePostedByLoggedInUserOrHisFriends(
+            $_GET['offsetForStatusUpdates'], $_GET['numberOfStatusUpdatesToBeDisplayed'] );
+         storeIntoSESSIONInformationAboutStatusUpdates( $_GET['offsetForStatusUpdates'], $idOfStatusUpdates );
+
+         $markup .= getMarkupToDisplayAllStatusUpdatesContainedInArray( $idOfStatusUpdates );
       }
-    /*  else {
-         header( 'Location: ' . $_SERVER['PHP_SELF'] );
-      } */
 
       $markup .= 
-         getMarkupToDisplayLinkForViewingMoreStatusUpdates() . '
-      </div> <!-- end div.loggedInBody -->
-      ';
-   }
-?>
-
-<?php
-   if ( userIsLoggedIn() ) {
-      $markupContainingStylesheet = '
-      <link href="stylesheets/genericStylesheet.css" type="text/css" rel="stylesheet" />
-      <link href="stylesheets/stylesheetForLoggedInHeader.css" type="text/css" rel="stylesheet" />
-      <link href="stylesheets/stylesheetForLoggedInBodyAndStatusUpdates.css" type="text/css" rel="stylesheet" />';
-   }
-   else {
-      $markupContainingStylesheet = '
-      <link href="stylesheets/stylesheetForHomepageWhenLoggedOut.css" type="text/css" rel="stylesheet" />';
+            getMarkupToDisplayLinkForViewingMoreStatusUpdatesThatWerePostedByLoggedInUserOrHisFriends() .
+         getMarkupForClosingDivTag();
    }
 ?>
 
 <html>
    <head>
       <title>Home | ife_facebook</title>
-
-      <?php
-         echo $markupContainingStylesheet;
-      ?>
-
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link href="stylesheets/ife_facebookStylesheet.css" type="text/css" rel="stylesheet"/>
    </head>
 
    <body>

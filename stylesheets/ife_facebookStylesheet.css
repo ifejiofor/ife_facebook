@@ -1,0 +1,479 @@
+/* This is the stysheet for the pages of ife_facebook.com */
+
+* {
+   box-sizing: border-box;
+}
+
+body {
+   font-family: sans-serif;
+   font-size: 16px;
+   background-color: #DDDDFF;
+}
+
+form input, form button {
+   font-size: 0.8em;
+}
+
+p, h1, h2, h3, h4, h5, h6 {
+   margin: 0;
+}
+
+a {
+   text-decoration: none;
+}
+
+a:hover {
+   text-decoration: underline;
+}
+
+textarea {
+   display: block;
+   width: 100%;
+   height: 100px;
+   padding: 10px;
+   margin: 0px;
+   border: 1px solid #CCCCFF;
+   font-family: "Comic Sans MS", sans-serif;
+   font-size: 0.8em;
+   resize: none;
+}
+
+.mainHeader {
+   background-color: #003399;
+   width: 100%;
+   margin: 0;
+   padding: 10px 0px 10px 6%;
+   overflow: auto;
+}
+
+.mainBody {
+   margin-top: 80px;
+   margin-left: 15%;
+   width: 50%;
+}
+
+h1.ifeFacebookShortLogo {
+   display: inline-block;
+   background-color: white;
+   color: #003399;
+   margin: 0px 6px 10px 10px;
+   padding: 1px 2px 1px 15px;
+   font-family: Aharoni, sans-serif;
+   font-size: 1.5625em;
+}
+
+h1.ifeFacebookLongLogo {
+   display: inline-block;
+   margin-top: 20px;
+   font-family: Aharoni, sans-serif;
+   color: white;
+   background-color: #003399;
+}
+
+.errorMessage {
+   color: red;
+   font-family: "Courier New", "Times New Roman", serif;
+   font-size: 0.8em;
+   display: inline-block;
+   margin-bottom: 15px;
+}
+
+.whiteHorizontalNavigationLinksWithoutBorders {
+   background-color: #003399;
+}
+
+.blueHorizontalNavigationLinksWithBorders {
+   background-color: white;
+   border: 1px solid #CCCCFF;
+}
+
+.whiteHorizontalNavigationLinksWithoutBorders  ul, .blueHorizontalNavigationLinksWithBorders ul {
+   margin: 0;
+   padding: 0;
+   list-style-type: none;
+   overflow: auto;
+}
+
+.whiteHorizontalNavigationLinksWithoutBorders  li, .blueHorizontalNavigationLinksWithBorders li {
+   float: left;
+}
+
+.whiteHorizontalNavigationLinksWithoutBorders a, .blueHorizontalNavigationLinksWithBorders a{
+   display: block;
+   font-size: 0.8125em;
+   font-weight: bolder;
+   text-decoration: none;
+}
+
+.whiteHorizontalNavigationLinksWithoutBorders a {
+   color: white;
+   padding: 8px 10px;
+}
+
+.whiteHorizontalNavigationLinksWithoutBorders a:hover {
+   color: #CCCCFF;
+}
+
+.whiteHorizontalNavigationLinksWithoutBorders a:active {
+   background-color: black;
+}
+
+.whiteHorizontalNavigationLinksWithoutBorders a#currentPage {
+   color: #CCCCFF;
+}
+
+.blueHorizontalNavigationLinksWithBorders a {
+   color: #003399;
+   padding: 10px 15px;
+   border-right: 1px solid #CCCCFF;
+}
+
+.blueHorizontalNavigationLinksWithBorders a:hover {
+   background-color: #F9F9FF;
+   color: #444;
+}
+
+.blueHorizontalNavigationLinksWithBorders a#currentPage {
+   color: #444;
+}
+
+.blueButton, .bigBlueButton {
+   background-color: #003399;
+   border: 2px outset #003399;
+   color: white;
+   cursor: pointer;
+}
+
+.greenButton, .bigGreenButton {
+   background-color: green;
+   color: white;
+   border: 2px outset green;
+   cursor: pointer;
+}
+
+.bigBlueButton, .bigGreenButton {
+   padding: 3px 30px;
+}
+
+.blueButton:hover, .bigBlueButton:hover {
+   background-color: #4477DD;
+}
+
+.greenButton:hover, .bigGreenButton:hover {
+   background-color: #00CC00;
+}
+
+.blueButton:active, .bigBlueButton:active, .greenButton:active, .bigGreenButton:active {
+   border-style: inset;
+}
+
+.lightBlueContainerWithBorder, .lightBlueContainerWithoutBorder {
+   background-color: #EEEEFF;
+   padding: 10px;
+   overflow: auto;
+}
+
+.whiteContainerWithBorder, .whiteContainerWithoutBorder {
+   background-color: white;
+   padding: 10px;
+   overflow: auto;
+}
+
+.transparentContainerWithBorder, .transparentContainerWithoutBorder {
+   background-color: transparent;
+   padding: 10px;
+   overflow: auto;
+}
+
+.lightBlueContainerWithBorder, .whiteContainerWithBorder, .transparentContainerWithBorder {
+   border: 1px solid #CCCCFF;
+}
+
+.redBadge {
+   font-size: 0.7em;
+   font-weight: bold;
+   background-color: red;
+   color: white;
+   border-radius: 50%;
+   padding: 2px 5px;
+}
+
+.boldText {
+   font-weight: bolder;
+}
+
+.bigSizedText {
+   font-size: 1.4em;
+}
+
+.moderateSizedText {
+   font-size: 1em;
+}
+
+.smallSizedText {
+   font-size: 0.75em;
+   font-weight: lighter;
+}
+
+.whiteText {
+   color: white;
+}
+
+.blackText {
+   color: black;
+}
+
+.darkGreyText {
+   color: #666;
+}
+
+.blueText {
+   color: #003399;
+}
+
+.centralizedText {
+   text-align: center;
+}
+
+.topBorder {
+   border-top: 1px solid #CCCCFF;
+}
+
+.bottomBorder {
+   border-bottom: 1px solid #CCCCFF;
+}
+
+.leftBorder {
+   border-left: 1px solid #CCCCFF;
+}
+
+.rightBorder {
+   border-right: 1px solid #CCCCFF;
+}
+
+.massiveTopMargin, .massiveTopMarginOnLargeScreens {
+   margin-top: 160px;
+}
+
+.bigTopMargin, .bigTopMarginOnLargeScreens {
+   margin-top: 40px;
+}
+
+.smallTopMargin, .smallTopMarginOnLargeScreens {
+   margin-top: 20px;
+}
+
+.verySmallTopMargin, .verySmallTopMarginOnLargeScreens {
+   margin-top: 10px;
+}
+
+.massiveBottomMargin, .massiveBottomMarginOnLargeScreens {
+   margin-bottom: 160px;
+}
+
+.bigBottomMargin, .bigBottomMarginOnLargeScreens {
+   margin-bottom: 40px;
+}
+
+.smallBottomMargin, .smallBottomMarginOnLargeScreens {
+   margin-bottom: 20px;
+}
+
+.verySmallBottomMargin, .verySmallBottomMarginOnLargeScreens {
+   margin-bottom: 10px;
+}
+
+.massiveLeftMargin, .massiveLeftMarginOnLargeScreens {
+   margin-left: 160px;
+}
+
+.bigLeftMargin, .bigLeftMarginOnLargeScreens {
+   margin-left: 40px;
+}
+
+.smallLeftMargin, .smallLeftMarginOnLargeScreens {
+   margin-left: 20px;
+}
+
+.verySmallLeftMargin, .verySmallLeftMarginOnLargeScreens {
+   margin-left: 10px;
+}
+
+.massiveRightMargin, .massiveRightMarginOnLargeScreens {
+   margin-right: 160px;
+}
+
+.bigRightMargin, .bigRightMarginOnLargeScreens {
+   margin-right: 40px;
+}
+
+.smallRightMargin, .smallRightMarginOnLargeScreens {
+   margin-right: 20px;
+}
+
+.verySmallRightMargin, .verySmallRightMarginOnLargeScreens {
+   margin-right: 10px;
+}
+
+.thirtyPercentWidth, .thirtyPercentWidthOnLargeScreens {
+   display: inline-block;
+   width: 30%;
+}
+
+.fortyPercentWidth, .fortyPercentWidthOnLargeScreens {
+   display: inline-block;
+   width: 40%;
+}
+
+.fortyFivePercentWidth, .fortyFivePercentWidthOnLargeScreens {
+   display: inline-block;
+   width: 45%;
+}
+
+.fortyEightPercentWidth, .fortyEightPercentWidthOnLargeScreens {
+   display: inline-block;
+   width: 48%;
+}
+
+.halfWidth, .halfWidthOnLargeScreens {
+   display: inline-block;
+   width: 50%;
+}
+
+.threeQuartersWidth, .threeQuartersWidthOnLargeScreens {
+   display: inline-block;
+   width: 75%;
+}
+
+.fullWidth {
+   display: inline-block;
+   width: 100%;
+}
+
+.floatedToRight, .floatedToRightOnLargeScreens {
+   float: right;
+}
+
+.floatedToLeft, .floatedToLeftOnLargeScreens {
+   float: left;
+}
+
+.notFloating {
+   clear: both;
+}
+
+.fixedOnLargeScreens {
+   position: fixed;
+   top: 0px;
+   left: 0px;
+}
+
+.disappearsOnLargeScreens {
+   display: none;
+}
+
+.displayAsInline {
+   display: inline;
+}
+
+.displayAsBlock {
+   display: block;
+}
+
+.boxShadowEffect {
+   box-shadow: 0px 0px 10px rgba( 100, 100, 100, 0.5 );
+}
+
+
+@media all and ( max-width: 850px ) {
+   body {
+      font-size: 14px;
+   }
+
+   textarea {
+      height: 80px;
+   }
+
+   .mainBody {
+      width: 95%;
+      margin: auto;
+   }
+
+   .whiteContainerWithBorder, .whiteContainerWithoutBorder, 
+      .lightBlueContainerWithBorder, .lightBlueContainerWithoutBorder
+      {
+      padding: 5px;
+   }
+
+   .massiveTopMarginOnLargeScreens, .bigTopMarginOnLargeScreens,
+      .smallTopMarginOnLargeScreens, .verySmallTopMarginOnLargeScreens
+      {
+      margin-top: 0;
+   }
+
+   .massiveBottomMarginOnLargeScreens, .bigBottomMarginOnLargeScreens,
+      .smallBottomMarginOnLargeScreens, .verySmallBottomMarginOnLargeScreens
+      {
+      margin-bottom: 0;
+   }
+
+   .massiveLeftMarginOnLargeScreens, .bigLeftMarginOnLargeScreens,
+      .smallLeftMarginOnLargeScreens, .verySmallLeftMarginOnLargeScreens
+      {
+      margin-left: 0;
+   }
+
+   .massiveRightMarginOnLargeScreens, .bigRightMarginOnLargeScreens,
+      .smallRightMarginOnLargeScreens, .verySmallRightMarginOnLargeScreens
+      {
+      margin-left: 0;
+   }
+
+   .thirtyPercentWidthOnLargeScreens, .fortyPercentWidthOnLargeScreens,
+      .fortyFivePercentWidthOnLargeScreens, .fortyEightPercentWidthOnLargeScreens,
+      .halfWidthOnLargeScreens, .threeQuartersWidthOnLargeScreens
+      {
+      width: 100%;
+   }
+
+   .floatedToLeftOnLargeScreens, .floatedToRightOnLargeScreens  {
+      float: none;
+   }
+
+   .disappearsOnSmallScreens {
+      display: none;
+   }
+
+   .disappearsOnLargeScreens {
+      display: block;
+   }
+
+   .fixedOnLargeScreens {
+      position: static;
+   }
+}
+
+
+/*
+   The following definitions are placed last so that they cannot be overridden by any definition in
+   the above media query the above media query
+*/
+.noPadding {
+   padding: 0;
+}
+
+.bigTopPadding {
+   padding-top: 40px;
+}
+
+.smallTopPadding {
+   padding-top: 20px;
+}
+
+.bigBottomPadding {
+   padding-bottom: 40px;
+}
+
+.smallBottomPadding {
+   padding-bottom: 20px;
+}

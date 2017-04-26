@@ -28,6 +28,12 @@
    }
 
 
+   function userHasNotClickedOnCancelButton()
+   {
+      return !userHasClickedOnCancelButton();
+   }
+
+
    function userHasClickedOnCancelButton()
    {
       return isset( $_POST['cancelButton'] );
@@ -58,9 +64,22 @@
    }
 
 
+   function userHasNotClickedOnYesButton()
+   {
+      return !userHasClickedOnYesButton();
+   }
+
+
    function userHasClickedOnYesButton()
    {
       return isset( $_POST['yesButton'] );
+   }
+
+
+
+   function userHasClickedOnSearchButton()
+   {
+      return isset( $_POST['searchButton'] ) || isset( $_GET['searchButton'] );
    }
 
 
@@ -91,6 +110,18 @@
    function userHasClickedOnTheLinkForHidingNamesOfLikers()
    {
       return isset( $_GET['requiredAction'] ) && $_GET['requiredAction'] == 'hideNamesOfLikers';
+   }
+
+
+   function userHasClickedOnTheLinkForViewingMoreSearchResults()
+   {
+      return isset( $_GET['requiredAction'] ) && $_GET['requiredAction'] == 'viewMoreSearchResults';
+   }
+
+
+   function userHasClickedOnTheLinkForViewingPreviousSearchResults()
+   {
+      return isset( $_GET['requiredAction'] ) && $_GET['requiredAction'] == 'viewPreviousSearchResults';
    }
 
 
@@ -130,15 +161,52 @@
    }
 
 
+   function userNeedsToViewSearchResults()
+   {
+      return
+         userHasClickedOnSearchButton() || 
+         userHasClickedOnTheLinkForViewingPreviousSearchResults() || 
+         userHasClickedOnTheLinkForViewingMoreSearchResults();
+   }
+
+
+   function userInputtedValidSearchQuery()
+   {
+      return !userDidNotInputValidSearchQuery();
+   }
+
+
+   function userDidNotInputValidSearchQuery()
+   {
+      $token = strtok( $_GET['searchQuery'], ' ' );
+
+      if ( $token == false ) {
+         return true;
+      }
+
+      while ( $token != false && isValidUserName( $token ) ) {
+         $token = strtok( ' ' );
+      }
+
+      return $token != false;
+   }
+
+
    function isValidEmailAddress( $email )
    {
       return !isNotValidEmailAddress( $email );
    }
 
 
+   /*
+      This function considers only strings of the format "someone@example.com" as valid emails.
+      Any other string format is considered invalid (including the format "someone@example.com.ng").
+
+      TODO: I hope to improve this function to also start considering the format "someone@example.com.ng" as valid.
+   */
    function isNotValidEmailAddress( $email )
    {
-      if ( emailUserNameIsNotValid( $email ) ) {
+      if ( emailIdentifierIsNotValid( $email ) ) {
          return true;
       }
 
@@ -159,11 +227,11 @@
    }
 
 
-   function emailUserNameIsNotValid( $email )
+   function emailIdentifierIsNotValid( $email )
    {
 
       for ( $index = 0; $index < strlen( $email ) && $email[$index] != '@' && 
-         isValidEmailUserNameCharacter( $email[$index] ); $index++ )
+         isValidEmailIdentifierCharacter( $email[$index] ); $index++ )
          ;
 
       if ( $index == strlen( $email ) ) {
@@ -174,25 +242,25 @@
          return $index == 0;
       }
 
-      if ( !isValidEmailUserNameCharacter( $email[$index] ) ) {
+      if ( !isValidEmailIdentifierCharacter( $email[$index] ) ) {
          return true;
       }
 
    }
 
 
-   function isValidEmailUserNameCharacter( $char )
+   function isValidEmailIdentifierCharacter( $char )
    {
       return  isAlpha( $char ) || isDigit( $char ) || 
-         isSpecialCharacterAllowedInEmailUserName( $char );
+         isSpecialCharacterAllowedInEmailIdentifier( $char );
    }
 
 
    function emailProviderNameIsNotValid( $email, $startingIndexOfEmailProviderName )
    {
 
-      for ( $index = $startingIndexOfEmailProviderName; $index < strlen( $email ) && 
-         $email[$index] != '.' && isAlpha( $email[$index] ); $index++ )
+      for ( $index = $startingIndexOfEmailProviderName;
+         $index < strlen( $email ) && $email[$index] != '.' && isAlpha( $email[$index] ); $index++ )
          ;
 
       if ( $index == strlen( $email ) ) {
@@ -212,8 +280,8 @@
 
    function emailProviderExtensionIsNotValid( $email, $startingIndexOfEmailProviderExtension )
    {
-      for ( $index = $startingIndexOfEmailProviderExtension; $index < strlen( $email ) && 
-         isAlpha( $email[$index] ) ; $index++ )
+      for ( $index = $startingIndexOfEmailProviderExtension;
+         $index < strlen( $email ) && isAlpha( $email[$index] ); $index++ )
          ;
 
       if ( $index == strlen( $email ) ) {
@@ -321,6 +389,29 @@
    }
 
 
+   function doesNotConsistOfSpacesOnly( $string )
+   {
+      return !consistsOfSpacesOnly( $string );
+   }
+
+
+   function consistsOfSpacesOnly( $string )
+   {
+      if ( $string === NULL ) {
+         return false;
+      }
+
+      for ( $index = 0; $index < strlen( $string ); $index++ ) {
+
+         if ( $string[$index] != ' ' ) {
+            break;
+         }
+      }
+
+      return $index == strlen( $string );
+   }
+
+
    function doesNotConsistOfAlphabetsOnly( $string )
    {
       return !consistsOfAlphabetsOnly( $string );
@@ -367,7 +458,7 @@
    }
 
 
-   function isSpecialCharacterAllowedInEmailUserName( $char )
+   function isSpecialCharacterAllowedInEmailIdentifier( $char )
    {
       return $char == '.' || $char == '_';
    }
@@ -376,6 +467,56 @@
    function isSpecialCharacterAllowedInOrdinaryUserName( $char )
    {
       return $char == '\'' || $char == '-';
+   }
+
+
+   function areFriendsOfEachOther( $idOfFirstUser, $idOfSecondUser )
+   {
+      $entryThatIndicatesFriendship = 
+         retrieveFromDatabaseEntryThatIndicatesThatUsersAreFriendsOfEachOther( $idOfFirstUser, $idOfSecondUser );
+
+      return existsInDatabase( $entryThatIndicatesFriendship );
+   }
+
+
+   function userHasNoPendingFriendRequest()
+   {
+      return !userHasAtLeastOnePendingFriendRequest();
+   }
+
+
+   function userHasAtLeastOnePendingFriendRequest()
+   {
+      $friendRequests = 
+         retrieveFromDatabaseAndReturnInArrayIdOfAllUsersWhoseFriendRequestsHaveNotBeenAcceptedByLoggedInUser();
+
+      return existsInDatabase( $friendRequests );
+   }
+
+
+   function friendRequestSentByLoggedInUserHasNotYetBeenAcceptedByRequiredUser( $idOfUser )
+   {
+      $friendRequest = 
+         retrieveFromDatabaseEntryThatIndicatesThatFriendRequestSentByLoggedInUserHasNotYetBeenAcceptedByRequiredUser( $idOfUser );
+
+      return existsInDatabase( $friendRequest );
+   }
+
+
+   function loggedInUserHasNotYetAcceptedFriendRequestByRequiredUser( $idOfUser )
+   {
+      $friendRequest = 
+         retrieveFromDatabaseEntryThatIndicatesThatLoggedInUserHasNotYetAcceptedFriendRequestByRequiredUser( $idOfUser );
+
+      return existsInDatabase( $friendRequest );
+   }
+
+
+   function userDidNotFillTheLoginForm()
+   {
+      return !isset( $_POST['userName'] ) || $_POST['userName'] == '' || 
+         !isset( $_POST['userPassword'] ) || $_POST['userPassword'] == '' ||
+         !isset( $_POST['loginButton'] );
    }
 
 
@@ -498,7 +639,7 @@
 
    function userDidNotInputValidAboutMeDetails()
    {
-      return $_POST['aboutMe'] == '';
+      return $_POST['aboutMe'] == '' || consistsOfSpacesOnly( $_POST['aboutMe'] );
    }
 
 
@@ -539,11 +680,74 @@
    }
 
 
-   /*
-      TODO: I'm yet to write the proper definition of this function. I hope to write it later whenever I'm chanced.
-   */
-   function isValidCalenderDate( $day, $month, $year ) {
+   function isValidCalenderDate( $day, $month, $year )
+   {
+      if ( $year < EARLIEST_YEAR || $year > CURRENT_YEAR ) {
+         return false;
+      }
+
+      if ( $month < JANUARY || $month > DECEMBER ) {
+         return false;
+      }
+
+      if ( $day < 1 ) {
+         return false;
+      }
+
+      if ( consistsOfThirtyDays( $month ) && $day > 30 ) {
+         return false;
+      }
+
+      if ( consistsOfThirtyOneDays( $month ) && $day > 31 ) {
+         return false;
+      }
+
+      if ( $month == FEBRUARY && isLeapYear( $year ) && $day > 29 ) {
+         return false;
+      }
+
+      if ( $month == FEBRUARY && isNotLeapYear( $year ) && $day > 28 ) {
+         return false;
+      }
+
       return true;
+   }
+
+
+   function consistsOfThirtyDays( $month )
+   {
+      return $month == SEPTEMBER || $month == APRIL || $month == JUNE || $month == NOVEMBER;
+   }
+
+
+   function consistsOfThirtyOneDays( $month )
+   {
+      return !consistsOfThirtyDays( $month ) && $month != FEBRUARY;
+   }
+
+
+   function isNotLeapYear( $year )
+   {
+      return !isLeapYear( $year );
+   }
+
+
+   function isLeapYear( $year )
+   {
+      if ( $year % 4 != 0 ) {
+         return false;
+      }
+
+      if ( $year % 100 != 0 ) {
+         return true;
+      }
+      else if ( $year % 100 == 0 && $year % 400 == 0 ) {
+         return true;
+      }
+      else {
+         return false;
+      }
+
    }
 
 
@@ -561,13 +765,13 @@
 
    function userDidNotInputNameOfCity()
    {
-      return $_POST['nameOfCity'] == '';
+      return $_POST['nameOfCity'] == '' || consistsOfSpacesOnly( $_POST['nameOfCity'] );
    }
 
 
    function userDidNotInputNameOfCountry()
    {
-      return $_POST['nameOfCountry'] == '';
+      return $_POST['nameOfCountry'] == '' || consistsOfSpacesOnly( $_POST['nameOfCountry'] );
    }
 
 
@@ -613,7 +817,7 @@
 
    function userInputtedHisFavouriteQuotes()
    {
-      return $_POST['favouriteQuotes'] != '';
+      return $_POST['favouriteQuotes'] != '' || consistsOfSpacesOnly( $_POST['favouriteQuotes'] );
    }
 
 
@@ -697,12 +901,23 @@
          $idOfSelectedLanguage = $_POST['idOfSelectedLanguage'];
       }
 
+      if ( $idOfSelectedLanguage == $_POST['idOfLanguageToBeEdited'] ) {
+         return false;
+      }
+
+
+      return alreadyExistsInDatabaseAsLanguageSpokenByLoggedInUser( $idOfSelectedLanguage );
+   }
+
+
+   function alreadyExistsInDatabaseAsLanguageSpokenByLoggedInUser( $idOfLanguage )
+   {
       $idOfLanguagesSpokenByUser = 
          retrieveFromDatabaseAndReturnInArrayIdOfAllLanguagesSpoken( $_SESSION['idOfLoggedInUser'] );
 
       for ( $index = 0; $index < sizeof( $idOfLanguagesSpokenByUser ); $index++ ) {
 
-         if ( $idOfLanguagesSpokenByUser[$index] == $idOfSelectedLanguage ) {
+         if ( $idOfLanguagesSpokenByUser[$index] == $idOfLanguage ) {
             break;
          }
 
@@ -888,29 +1103,67 @@
    }
 
 
-   function atLeastOneMoreStatusUpdateExistsInDatabase()
+   function atLeastOneMoreStatusUpdateThatWasPostedByLoggedInUserOrHisFriendsExistsInDatabase()
    {
-      $nextRelevantStatusUpdate = retrieveFromDatabaseAndReturnInArrayIdOfStatusUpdates(
+      $nextRelevantStatusUpdate = retrieveFromDatabaseAndReturnInArrayIdOfSomeStatusUpdatesThatWerePostedByLoggedInUserOrHisFriends(
          $_SESSION['totalNumberOfStatusUpdatesDisplayedSoFar'], 1 );
       return existsInDatabase( $nextRelevantStatusUpdate );
    }
 
 
-   function detailsOfLanguageIsNotStoredInSESSION( $idOfRequiredLanguage )
+   function atLeastOneMoreStatusUpdateThatWasPostedByUserExistsInDatabase( $idOfUser )
    {
-      return !detailsOfLanguageIsStoredInSESSION( $idOfRequiredLanguage );
+      $nextRelevantStatusUpdate = retrieveFromDatabaseAndReturnInArrayIdOfSomeStatusUpdatesThatWerePostedByUser(
+         $idOfUser, $_SESSION['totalNumberOfStatusUpdatesDisplayedSoFar'], 1 );
+      return existsInDatabase( $nextRelevantStatusUpdate );
    }
 
 
-   function detailsOfLanguageIsStoredInSESSION( $idOfRequiredLanguage )
+   function atLeastOneMoreSearchResultExistsInDatabase()
    {
-      for ( $index = 0; $index < $_SESSION['totalNumberOfLanguages']; $index++ ) {
+      $nextSearchResult = rerieveFromDatabaseAndReturnInArrayIdOfUsersWhoseNamesMatchSearchQuery( 
+         $_GET['searchQuery'], $_SESSION['totalNumberOfSearchResultsDisplayedSoFar'], 1 );
 
-         if ( $_SESSION['idOfLanguage' . $index] == $idOfRequiredLanguage ) {
-            break;
-         }
+      return existsInDatabase( $nextSearchResult );
+   }
+
+
+   function moreUsersAreToBeRecommendedForFriendship()
+   {
+      $row = retrieveFromDatabaseIdOfHometown( $_SESSION['idOfLoggedInUser'] );
+
+      if ( doesNotExistInDatabase( $row['id_of_hometown'] ) ) {
+         return true;
       }
 
-      return $index < $_SESSION['totalNumberOfLanguages'];
+      $idOfUsersFromTheSameHometown = 
+         retrieveFromDatabaseAndReturnInArrayIdOfUsersAssociatedWithHometown( $row['id_of_hometown'] );
+
+      return sizeof( $idOfUsersFromTheSameHometown ) < MAX_NUMBER_OF_USERS_TO_RECOMMEND;
+   }
+
+
+   function userIsNotFromTheSameHometownAsLoggedInUser( $idOfUser )
+   {
+      $hometownOfUser = retrieveFromDatabaseIdOfHometown( $idOfUser );
+      $hometownOfLoggedInUser = retrieveFromDatabaseIdOfHometown( $_SESSION['idOfLoggedInUser'] );
+
+      return $hometownOfUser['id_of_hometown'] != $hometownOfLoggedInUser['id_of_hometown'];
+   }
+
+
+   function userShouldBeRecommendedForFriendship( $idOfRequiredUser )
+   {
+      return !userShouldNotBeRecommendedForFriendship( $idOfRequiredUser );
+   }
+
+
+   function userShouldNotBeRecommendedForFriendship( $idOfRequiredUser )
+   {
+      return 
+         $_SESSION['idOfLoggedInUser'] == $idOfRequiredUser ||
+         areFriendsOfEachOther( $_SESSION['idOfLoggedInUser'], $idOfRequiredUser ) ||
+         friendRequestSentByLoggedInUserHasNotYetBeenAcceptedByRequiredUser( $idOfRequiredUser ) ||
+         loggedInUserHasNotYetAcceptedFriendRequestByRequiredUser( $idOfRequiredUser );
    }
 ?>

@@ -1,5 +1,6 @@
 <?php
-   include_once 'includeFiles/functionsForAccessingDatabase.php';
+   include_once 'includeFiles/functionsForInteractingWithDatabaseAtLowLevel.php';
+   include_once 'includeFiles/booleanFunctions.php';
    include_once 'includeFiles/functionsForStoringDataIntoSESSION.php';
    include_once 'includeFiles/miscellaneousFunctions.php';
    include_once 'includeFiles/usefulConstants.php';
@@ -15,7 +16,7 @@
 
       $rowContainingIdOfLanguage = retrieveFromDatabaseIdOfLanguageAssociatedWithNameOfLanguage( $nameOfNewLanguage );
 
-      if ( $rowContainingIdOfLanguage != false ) {
+      if ( existsInDatabase( $rowContainingIdOfLanguage ) ) {
          $idOfLatestLanguage = $rowContainingIdOfLanguage['language_id'];
       }
       else {
@@ -25,7 +26,6 @@
 
          sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
          $idOfLatestLanguage = mysql_insert_id( $handleOfIfeFacebookDatabase );
-         storeIntoSESSIONRelevantDetailsAboutAllLanguagesExistingInDatabase();
       }
 
       return $idOfLatestLanguage;
@@ -119,7 +119,7 @@
 
       $row = retrieveFromDatabaseCityIdAssociatedWithNameOfCityAndNameOfCountry( $nameOfCity, $nameOfCountry );
 
-      if ( $row != false ) {
+      if ( existsInDatabase( $row ) ) {
          $idOfCity = $row['city_id'];
       }
       else {
@@ -132,5 +132,41 @@
       }
 
       return $idOfCity;
+   }
+
+
+   function insertIntoDatabaseEntryThatIndicatesThatLoggedInUserSentFriendRequestToRequiredUser( $idOfRequiredUser )
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      $query = '
+         INSERT INTO friend_requests ( id_of_sender, id_of_reciever )
+            VALUES ( ' . (integer)$_SESSION['idOfLoggedInUser'] . ', ' . (integer)$idOfRequiredUser . ' )';
+
+      sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+   }
+
+
+   function insertIntoDatabaseEntryToIndicateThatRequiredUserAndLoggedInUserAreNowFriends( $idOfRequiredUser )
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      $query = '
+         INSERT INTO friend_relationships ( id_of_first_user, id_of_second_user )
+            VALUES ( ' . (integer)$idOfRequiredUser . ', ' . (integer)$_SESSION['idOfLoggedInUser'] . ' )';
+
+      sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
+   }
+
+
+   function insertIntoDatabaseNotificationEntry( $notificationText, $idOfUserWhomNotificationIsMeantFor )
+   {
+      global $handleOfIfeFacebookDatabase;
+
+      $query = '
+         INSERT INTO notifications ( id_of_user_whom_notification_is_meant_for, notification_text, time_of_creating_notification, notification_state )
+         VALUES ( ' . (integer)$idOfUserWhomNotificationIsMeantFor . ', "' . mysql_real_escape_string( $notificationText ) . '", NOW(), "not_read" )';
+
+      sendQueryToDatabaseAndGetResult( $query, $handleOfIfeFacebookDatabase );
    }
 ?>

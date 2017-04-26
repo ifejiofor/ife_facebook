@@ -1,4 +1,22 @@
 <?php
+   include_once 'includeFiles/functionsForInsertingDataIntoDatabase.php';
+   include_once 'includeFiles/functionsForDeletingDataFromDatabase.php';
+   include_once 'includeFiles/booleanFunctions.php';
+
+
+   /*
+      TODO: I hope to improve this function to do more sophisticated capitalizations such as,
+         capitalizing a name like 'dar es salaam' into 
+         'Dar es Salaam' instead of 'Dar Es Salaam', e.t.c.
+   */
+   function capitalizeWordsThatShouldBeCapitalized( $requiredString )
+   {
+      $requiredString = strtolower( $requiredString );
+
+      return ucwords( $requiredString );
+   }
+
+
    function convertToNameOfMonth( $monthNumber )
    {
       $monthNames = array( 
@@ -25,6 +43,81 @@
       }
 
    }
+
+
+   function convertToPhoneNumberWithCountryCode( $phoneNumber, $countryCode = '+234' )
+   {
+
+      if ( $phoneNumber[0] == '0' ) {
+         $phoneNumberWithCountryCode = $countryCode;
+
+         for ( $index = 1; $index < strlen( $phoneNumber ); $index++ ) {
+            $phoneNumberWithCountryCode .= $phoneNumber[$index];
+         }
+
+         return $phoneNumberWithCountryCode;
+      }
+      else {
+         return $phoneNumber;
+      }
+   }
+
+
+   function createNotificationToIndicateThatLoggedinUserHasAcceptedFriendRequestByRequiredUser( $idOfRequiredUser )
+   {
+      $namesOfLoggedInUser = retrieveFromDatabaseFirstNameLastNameAndNickName( $_SESSION['idOfLoggedInUser'] );
+      $notificationText = 
+         '<a href="profileOfUser.php?idOfRequiredUser=' . $_SESSION['idOfLoggedInUser'] . '">' . $namesOfLoggedInUser['first_name'] . ' ' . $namesOfLoggedInUser['last_name'] . '</a> accepted your friend request.';
+
+      insertIntoDatabaseNotificationEntry( $notificationText, $idOfRequiredUser );
+   }
+
+
+   function createNotificationToIndicateThatLoggedInUserHasRejectedFriendRequestByRequiredUser( $idOfRequiredUser )
+   {
+      $namesOfLoggedInUser = retrieveFromDatabaseFirstNameLastNameAndNickName( $_SESSION['idOfLoggedInUser'] );
+      $notificationText = 
+         '<a href="profileOfUser.php?idOfRequiredUser=' . $_SESSION['idOfLoggedInUser'] . '">' . $namesOfLoggedInUser['first_name'] . ' ' . $namesOfLoggedInUser['last_name'] . '</a> rejected your friend request.';
+
+      insertIntoDatabaseNotificationEntry( $notificationText, $idOfRequiredUser );
+   }
+
+
+   function createNotificationToIndicateThatLoggedInUserHasUnFriendedRequiredUser( $idOfRequiredUser )
+   {
+      $namesOfLoggedInUser = retrieveFromDatabaseFirstNameLastNameAndNickName( $_SESSION['idOfLoggedInUser'] );
+      $notificationText = 
+         '<a href="profileOfUser.php?idOfRequiredUser=' . $_SESSION['idOfLoggedInUser'] . '">' . $namesOfLoggedInUser['first_name'] . ' ' . $namesOfLoggedInUser['last_name'] . '</a> unfriended you.';
+
+      insertIntoDatabaseNotificationEntry( $notificationText, $idOfRequiredUser );
+   }
+
+
+   function createNotificationsThatInformFriendsOfLoggedInUserThatAccountOfLoggedInUserHasBeenDeactivated()
+   {
+      $namesOfLoggedInUser = retrieveFromDatabaseFirstNameLastNameAndNickName( $_SESSION['idOfLoggedInUser'] );
+      $notificationText = $namesOfLoggedInUser['first_name'] . ' ' . $namesOfLoggedInUser['last_name'] . ' account has been deactivated.';
+
+      for ( $index = 0; $index < $_SESSION['totalNumberOfFriends']; $index++ ) {
+         insertIntoDatabaseNotificationEntry( $notificationText, $_SESSION['idOfFriend' . $index] );
+      }
+   }
+
+
+   function deactivateAccountOfLoggedInUser()
+   {
+      deleteFromDatabaseAllEntriesThatAssociateLoggedInUserWithLanguagesAsWellAsAnyRedundantLanguageEntries();
+      deleteFromDatabaseAllEntriesThatAssociateLoggedInUserWithHisFriends();
+      deleteFromDatabaseAllFriendRequestsSentToOrRecievedByLoggedInUser();
+      deleteFromDatabaseAllStatusUpdatesPostedByLoggedInUserAsWellAsAnyRedundantCommentsAndLikes();
+      deleteFromDatabaseAllCommentsByLoggedInUserToAnyStatusUpdate();
+      deleteFromDatabaseAllEntriesThatIndicateThatLoggedInUserLikesAnyStatusUpdate();
+      deleteFromDatabaseAllNotificationsMeantForLoggedInUser();
+      deleteFromDatabaseEntryThatContainsInformationAboutUserAsWellAsAnyRedundantCityEntries();
+      session_destroy();
+   }
+
+
    function formatAboutMeDetails( $row )
    {
       return $row['about_me'];
@@ -34,7 +127,6 @@
    function formatBirthdayDetails( $row )
    {
       $nameOfMonthOfBirth = convertToNameOfMonth( $row['month_of_birth'] );
-
       return $nameOfMonthOfBirth . ' ' . $row['day_of_birth'] . ', ' . $row['year_of_birth'];
    }
 
@@ -43,7 +135,6 @@
    {
       $capitalizedNameOfCity = capitalizeWordsThatShouldBeCapitalized( $row['name_of_city'] );
       $capitalizedNameOfCountry = capitalizeWordsThatShouldBeCapitalized( $row['name_of_country'] );
-
       return  $capitalizedNameOfCity . ', ' . $capitalizedNameOfCountry;
    }
 
@@ -119,7 +210,7 @@
    function addPaddingZeroToTheLeftIfNecessary( $integerValue )
    {
 
-      if ( $integerValue <= 9 ) {
+      if ( $integerValue >= 0 && $integerValue <= 9 ) {
          return '0' . $integerValue;
       }
       else {
@@ -129,16 +220,20 @@
    }
 
 
-   /*
-      TODO: I hope to improve this function to do more sophisticated capitalizations such as,
-         capitalizing a name like 'dar es salaam' into 
-         'Dar es Salaam' instead of 'Dar Es Salaam', e.t.c.
-   */
-   function capitalizeWordsThatShouldBeCapitalized( $requiredString )
+   function getArrayContainingResultOfQuery( $resultOfQuery, $column )
    {
-      $requiredString = strtolower( $requiredString );
+      $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
 
-      return ucwords( $requiredString );
+      if ( $rowFromResultOfQuery == false ) {
+         return NULL;
+      }
+
+      while ( $rowFromResultOfQuery != false ) {
+         $array[] = $rowFromResultOfQuery[$column];
+         $rowFromResultOfQuery = mysql_fetch_assoc( $resultOfQuery );
+      }
+
+      return $array;
    }
 
 
@@ -158,23 +253,84 @@
 
       return $index + 1;
    }
+   
+
+   function getIndexOfLanguage( $idOfLanguage )
+   {
+      $idOfLanguagesSpokenByUser = 
+         retrieveFromDatabaseAndReturnInArrayIdOfAllLanguagesSpoken( $_SESSION['idOfLoggedInUser'] );
+
+      for ( $index = 0;
+         $index < sizeof( $idOfLanguagesSpokenByUser ) && $idOfLanguage != $idOfLanguagesSpokenByUser[$index];
+         $index++ )
+         ;
+
+      return $index + 1;
+   }
 
 
-   function convertToPhoneNumberWithCountryCode( $phoneNumber, $countryCode = '+234' )
+   function getIdOfAnyFriendOfLoggedInUserThatLikesThisStatusUpdate( $idOfStatusUpdate )
    {
 
-      if ( $phoneNumber[0] == '0' ) {
-         $phoneNumberWithCountryCode = $countryCode;
+      for ( $index = 0; $index < $_SESSION['totalNumberOfFriends']; $index++ ) {
 
-         for ( $index = 1; $index < strlen( $phoneNumber ); $index++ ) {
-            $phoneNumberWithCountryCode .= $phoneNumber[$index];
+         if ( userLikesStatusUpdate( $_SESSION['idOfFriend' . $index], $idOfStatusUpdate ) ) {
+            return $_SESSION['idOfFriend' . $index];
          }
 
-         return $phoneNumberWithCountryCode;
+      }
+
+      return NULL;
+   }
+
+
+   function getLanguageNumberToBeAssociatedWithNewLanguage()
+   {
+      $allLanguagesSpokenByLoggedInUser = 
+         retrieveFromDatabaseAndReturnInArrayIdOfAllLanguagesSpoken( $_SESSION['idOfLoggedInUser'] );
+      $languageNumber = sizeof( $allLanguagesSpokenByLoggedInUser ) + 1;
+      return $languageNumber;
+   }
+
+
+   function getNumberOfRecommendedUsersFromTheSameHometownAsLoggedInUser()
+   {
+      $row = retrieveFromDatabaseIdOfHometown( $_SESSION['idOfLoggedInUser'] );
+      $hometownOfLoggedInUser = $row['id_of_hometown'];
+
+      if ( doesNotExistInDatabase( $hometownOfLoggedInUser ) ) {
+         return 0;
+      }
+
+      $idOfUsers =  retrieveFromDatabaseAndReturnInArrayIdOfUsersAssociatedWithHometown( $hometownOfLoggedInUser );
+
+      $counter = 0;
+      for ( $index = 0; $index < sizeof( $idOfUsers ); $index++ ) {
+         if ( userShouldBeRecommendedForFriendship( $idOfUsers[$index] ) ) {
+            $counter++;
+         }
+      }
+
+      return $counter;
+   }
+
+
+   function logTheUserIn( $userName )
+   {
+      $rowContainingUserId = retrieveFromDatabaseUserIdAssociatedWithUserName( $userName );
+      $_SESSION['idOfLoggedInUser'] = $rowContainingUserId['user_id'];
+   }
+
+
+   function redirectToTheSourcePage()
+   {
+      if ( isset( $_POST['urlOfSourcePage'] ) ) {
+         header( 'Location: '  .  $_POST['urlOfSourcePage'] );
       }
       else {
-         return $phoneNumber;
+         header( 'Location: index.php' );
       }
+
    }
 
 
@@ -212,46 +368,5 @@
       }
 
       return $informationAboutInvalidUserInputs;
-   }
-
-
-   function getIdOfAnyFriendOfLoggedInUserThatLikesThisStatusUpdate( $idOfStatusUpdate )
-   {
-
-      for ( $index = 0; $index < $_SESSION['totalNumberOfFriends']; $index++ ) {
-
-         if ( userLikesStatusUpdate( $_SESSION['idOfFriend' . $index], $idOfStatusUpdate ) ) {
-            return $_SESSION['idOfFriend' . $index];
-         }
-
-      }
-
-      return NULL;
-   }
-
-
-   function getIndexOfLanguage( $idOfLanguage )
-   {
-      $idOfLanguagesSpokenByUser = 
-         retrieveFromDatabaseAndReturnInArrayIdOfAllLanguagesSpoken( $_SESSION['idOfLoggedInUser'] );
-
-      for ( $index = 0; $index < sizeof( $idOfLanguagesSpokenByUser ) && 
-         $idOfLanguage != $idOfLanguagesSpokenByUser[$index]; $index++ )
-         ;
-
-      return $index + 1;
-   }
-
-
-   function getIndexOfPositionWhereLanguageIsStoredInSESSION( $idOfRequiredLanguage )
-   {
-      for ( $index = 0; $index < $_SESSION['totalNumberOfLanguages']; $index++ ) {
-
-         if ( $_SESSION['idOfLanguage' . $index] == $idOfRequiredLanguage ) {
-            break;
-         }
-      }
-
-      return $index;
    }
 ?>

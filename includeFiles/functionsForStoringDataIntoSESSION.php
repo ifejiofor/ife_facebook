@@ -48,54 +48,18 @@
       $_SESSION['firstName'] = $namesOfLoggedInUser['first_name'];
    }
 
-   function storeIntoSESSIONRelevantDetailsAboutAllLanguagesExistingInDatabase()
-   {
-      storeIntoSESSIONIdOfAllLanguagesExistingInDatabase();
-      $totalNumberOfLanguages = storeIntoSESSIONNamesOfAllLanguagesExistingInDatabase();
-      storeIntoSESSIONTotalNumberOfAllLanguagesExistingInDatabase( $totalNumberOfLanguages );
-   }
 
-   function storeIntoSESSIONIdOfAllLanguagesExistingInDatabase()
+   function storeIntoSESSIONInformationAboutStatusUpdates( $offset, $arrayContainingIdOfStatusUpdates )
    {
-      $idOfAllLanguages = retrieveFromDatabaseAndReturnInArrayIdOfAllLanguagesExistingInDatabase();
 
-      for ( $index = 0; $index < sizeof( $idOfAllLanguages ); $index++ ) {
-         $_SESSION['idOfLanguage' . $index] = $idOfAllLanguages[$index];
+      for ( $index = 0; $index < sizeof( $arrayContainingIdOfStatusUpdates ); $index++ ) {
+         $_SESSION['idOfStatusUpdate' . $index] = $arrayContainingIdOfStatusUpdates[$index];
       }
 
-      return $index;
-   }
-
-   function storeIntoSESSIONNamesOfAllLanguagesExistingInDatabase()
-   {
-      $namesOfAllLanguages = retrieveFromDatabaseAndReturnInArrayNamesOfAllLanguagesExistingInDatabase();
-
-      for ( $index = 0; $index < sizeof( $namesOfAllLanguages ); $index++ ) {
-         $_SESSION['nameOfLanguage' . $index] = 
-            capitalizeWordsThatShouldBeCapitalized( $namesOfAllLanguages[$index] );
-      }
-
-      return $index;
-   }
+      $_SESSION['totalNumberOfStatusUpdatesStoredInSESSION'] = sizeof( $arrayContainingIdOfStatusUpdates );
+      $_SESSION['totalNumberOfStatusUpdatesDisplayedSoFar'] = $offset + sizeof( $arrayContainingIdOfStatusUpdates );
 
 
-   function storeIntoSESSIONTotalNumberOfAllLanguagesExistingInDatabase( $languageCount )
-   {
-      $_SESSION['totalNumberOfLanguages'] = $languageCount;
-   }
-
-
-   function storeIntoSESSIONInformationAboutStatusUpdates( $offset, $numberOfRows )
-   {
-      $idOfStatusUpdates = 
-         retrieveFromDatabaseAndReturnInArrayIdOfStatusUpdates( $offset, $numberOfRows );
-
-      for ( $index = 0; $index < sizeof( $idOfStatusUpdates ); $index++ ) {
-         $_SESSION['idOfStatusUpdate' . $index] = $idOfStatusUpdates[$index];
-      }
-
-      $_SESSION['totalNumberOfStatusUpdatesStoredInSESSION'] = sizeof( $idOfStatusUpdates );
-      $_SESSION['totalNumberOfStatusUpdatesDisplayedSoFar'] = $offset + sizeof( $idOfStatusUpdates );
    }
 
 
